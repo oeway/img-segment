@@ -1,0 +1,314 @@
+﻿<docs>
+
+Window plugin to generate masks from annotations.
+
+# Acknowledgement 
+* CSS style: spectre.css
+* Menu that folds: https://tutorialzine.com/2015/08/quick-tip-css-only-dropdowns-with-the-checkbox-hack
+</docs>
+
+<config lang="json">
+{
+  "name": "Mask Generator",
+  "type": "window",
+  "tags": [],
+  "ui": "",
+  "version": "0.1.0",
+  "api_version": "0.1.2",
+  "description": "[TODO: describe this plugin with one sentence.]",
+  "icon": "extension",
+  "inputs": null,
+  "outputs": null,
+  "env": "",
+  "requirements": [
+         "https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.22/vue.min.js",
+        "https://unpkg.com/spectre.css/dist/spectre.min.css",
+        "https://unpkg.com/spectre.css/dist/spectre-exp.min.css",
+        "https://unpkg.com/spectre.css/dist/spectre-icons.min.css"],
+  "dependencies": [],
+  "defaults": {"w": 40, "h": 30}
+}
+</config>
+
+<script lang="javascript">
+
+class ImJoyPlugin {
+
+  async setup() {
+  
+    // For vue
+    this.store = {
+      channels: [],
+      ch_name: [],
+      ch_ident:[],
+      ch_masks:[],
+      image_size_h : 2048,
+      image_size_w : 2048,
+      annot_ext:'_annotation.json',
+      img_ext:'.tif',
+      annot_type:'geojson',
+      annot_type2:'geojson',
+      search_recursive : false
+    };
+
+    this.app = new Vue({
+      el: '#app',
+      template: await api.getAttachment('app_template'),
+      data: this.store,
+      methods: {
+
+       // Define root folder 
+        define_root: async function() {
+          var root = await api.call("Image Segmentation", "define_root", {'root': this.root_folder})
+          console.log(root)
+          this.root_folder = root
+        },
+
+        // Mask generator: remove channel  
+        remove_channel: function(ch) {
+          console.log(this)
+          this.channels.splice(this.channels.indexOf(ch), 1);
+        },
+
+        // Mask generator: add channel  
+        add_channel: function() {
+          console.log(this)
+           this.channels.push({
+                name: this.ch_name,
+                identifier: this.ch_ident,
+                masks: this.ch_masks
+                })
+            // Reset fields
+            this.ch_name = []
+            this.ch_ident = []
+            this.ch_masks = []   
+        },
+
+        //Create masks
+        create_masks: async function() {
+           console.log(this.annot_type)
+           await api.call(
+                    "Image Segmentation", "create_masks", 
+                    {   
+                        'channels': this.channels,
+                        'search_recursive': this.search_recursive,
+                        'annot_ext': this.annot_ext,
+                        'annot_type':this.annot_type,
+                        'image_size': [parseInt(this.image_size_h),parseInt(this.image_size_w)],
+                        'log_fun': api.log
+                    }
+            )
+        }
+      }
+    })
+  }
+
+  // Mask generator: add channel
+  // Function can eventually be removed. Currently serves to populate table
+  async addChannel(config) {
+    this.store.channels.push(config)
+    this.app.$forceUpdate()
+  }
+
+  // Set root folder
+  async set_root(root_folder) {
+    console.log(root_folder)
+    this.store.root_folder = root_folder
+  }
+
+
+  async run(my) {
+    console.log('running in the plugin ', my)
+
+    // Add some test channels
+    this.addChannel({
+      name: 'Cells',
+      identifier: 'Cy5',
+      masks: ['edge', 'distance']
+    })
+    this.addChannel({
+      name: 'Nuclei',
+      identifier: 'DAPI',
+      masks: ['filled']
+    })
+  }
+
+}
+
+api.export(new ImJoyPlugin()) 
+</script>
+
+<attachment name="app_template">
+	<div>
+		<br>
+		<h3> Create channel-specific masks for image segmentation </h3>
+		<br>
+
+		<!-- Card to specify masks -->
+		<div class="card">
+			<div class="card-header">
+				<div class="card-title h5">Define mask types</div>
+				<div class="card-subtitle text-gray">Specify for each channel which mask types should be generated.</div>
+			</div>
+			<div class="card-body">
+
+				<!-- Mask generator: form to create add a new channel -->
+				<form class="form-horizontal">
+					<div class="form-group">
+						<!-- Add button name -->
+						<div class="col-1 col-sm-12">
+							<button class="btn btn-action btn-primary btn-lg s-circle" @click="add_channel" :disabled="ch_name.length==0 && ch_ident.length==0 && ch_masks.length==0"><i class="icon icon-plus"></i>
+							</button>
+						</div>
+						<!-- Channel name -->
+						<div class="col-3 col-sm-12">
+							<div class="input-group"> <span class="input-group-addon">Channel</span>
+								<input type="text" class="form-input" placeholder="Name of channel" v-model="ch_name">
+							</div>
+						</div>
+						<!-- Channel identifier -->
+						<div class="col-1 col-sm-12"></div>
+						<div class="col-3 col-sm-12">
+							<div class="input-group"> <span class="input-group-addon">Identifier</span>
+								<input type="text" class="form-input" placeholder="Unique string" v-model="ch_ident">
+							</div>
+						</div>
+						<!-- Which masks -->
+						<div class="accordion">
+							<input type="checkbox" id="accordion-1" name="accordion-checkbox" hidden>
+							<label class="accordion-header" for="accordion-1"> <i class="icon icon-arrow-right mr-1"></i>
+								Select mask type(s)</label>
+							<div class="accordion-body">
+								<ul class="menu">
+									<!-- Filled mask-->
+									<li class="menu-item">
+										<label class="form-checkbox">
+											<input type="checkbox" id="filledmask" value="filled" v-model="ch_masks"> <i class="form-icon"></i> Filled mask</label>
+									</li>
+									<!-- Edge mask-->
+									<li class="menu-item">
+										<label class="form-checkbox">
+											<input type="checkbox" id="edgemask" value="edge" v-model="ch_masks"> <i class="form-icon"></i> Edge mask</label>
+									</li>
+									<!-- Distance map-->
+									<li class="menu-item">
+										<label class="form-checkbox">
+											<input type="checkbox" id="distancemap" value="distance" v-model="ch_masks"> <i class="form-icon"></i> Distance map</label>
+									</li>
+									<!-- Weighted edge-->
+									<li class="menu-item">
+										<label class="form-checkbox">
+											<input type="checkbox" id="weightedmask" value="weigthed" v-model="ch_masks"> <i class="form-icon"></i> Weighted edge</label>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</form>
+				<!-- Mask generator: end of form to create add a new channel -->
+
+				<!-- Mask generator: table containing masks to be created -->
+				<div style="text-align: center;">
+					<table class="table table-striped table-hover">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Identifier</th>
+								<th>Mask</th>
+								<th>Remove?</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="ch in channels" :key="ch.name">
+								<td>{{ch.name}}</td>
+								<td>{{ch.identifier}}</td>
+								<td> <span v-for="m in ch.masks" :key="m">{{m}}, </span>
+								</td>
+								<td>
+									<button class="btn btn-primary action btn-lg s-circle" @click="remove_channel(ch)"><i class="icon icon-delete"></i>
+									</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- Mask generator: end of table containing masks to be created -->
+			</div>
+			<!-- End of card body masks -->
+		</div>
+		<!-- End of card to specify masks -->
+
+		<!-- Card to generate masks -->
+		<div class="card">
+			<div class="card-header">
+				<div class="card-title h5">Create masks</div>
+				<div class="card-subtitle text-gray">Select outlines to be processed and generate masks.</div>
+			</div>
+
+			<div class="card-body">
+
+				<!-- Form to specify mask type and image extensions -->
+				<form class="form-horizontal">
+					<div class="form-group">
+						<!-- Annotation extension -->
+						<div class="col-4 col-lg-12">
+							<div class="input-group"> <span class="input-group-addon">Annotation file extension</span>
+								<input type="text" class="form-input" v-model="annot_ext">
+							</div>
+						</div>
+						<!-- Annotation Type -->
+						<div class="col-1 col-lg-12"></div>
+						<div class="col-3 col-lg-12">
+                            <div class="input-group"> <span class="input-group-addon">Annotation type</span>
+                                <div class="form-group">
+                                    <label class="form-radio form-inline">
+                                        <input type="radio" v-model="annot_type" value="geojson" checked=""><i class="form-icon"></i> GeoJson</label>
+                                    <label class="form-radio form-inline">
+                                        <input type="radio" v-model="annot_type" value="fiji"><i class="form-icon"></i> Fiji</label>
+                                </div>
+                            </div>
+                        </div>
+					
+                        <!-- Image size -->
+                        <div class="col-1 col-lg-12"></div>
+                        <div class="col-3 col-lg-12">
+                            <div class="input-group" v-if="annot_type=='fiji'"> <span class="input-group-addon">Image size</span>
+                                <input type="number" class="form-input" v-model="image_size_h">
+                                <input type="number" class="form-input" v-model="image_size_w">
+                            </div>
+                        </div>
+                    </div>
+			    </form>
+			    <!-- END: Form to specify mask type and image extensions  -->
+
+                <!-- Form group to load/process data -->
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-2 col-lg-12">
+                            <button class="btn btn-primary" @click="create_masks">Select files or folder and create masks</i>
+                            </button>
+                        </div>
+                        <div class="col-3 col-lg-12"></div>
+                        <div class="col-5 col-lg-12">
+                            <label class="form-checkbox">
+                                <input type="checkbox" id="searchRecursive" v-model="search_recursive"> <i class="form-icon"></i> Recursively search directories</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- END: card body to generate masks -->
+		</div>
+        <!-- END: card to generate masks -->
+
+	</div>
+</attachment>
+
+
+<window lang="html">
+    <div id="app"> </div>
+</window>
+
+
+<style lang="css">
+
+</style>

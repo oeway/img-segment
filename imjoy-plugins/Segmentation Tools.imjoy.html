@@ -1,0 +1,74 @@
+﻿<docs lang="markdown">
+Native python plugin containing functions for cell segmentation. 
+</docs>
+
+<config lang="json">
+{
+  "name": "Segmentation Tools",
+  "type": "native-python",
+  "version": "0.1.0",
+  "api_version": "0.1.2",
+  "description": "[TODO: describe this plugin with one sentence.]",
+  "tags": [],
+  "ui": "",
+  "inputs": null,
+  "outputs": null,
+  "flags": [],
+  "icon": "extension",
+  "env": "",
+  "runnable":true,
+  "requirements": ["scikit-image"],
+  "dependencies": []
+}
+</config>
+
+<script lang="python">
+
+import numpy as np
+import asyncio
+from skimage.io import imread, imsave
+import base64
+from io import BytesIO
+from PIL import Image
+import os
+
+import sys
+import importlib  # to reload
+
+sys.path.append('/Volumes/PILON_HD2/fmueller/Documents/code/ImJoy_dev/img-segment/imgseg')
+import annotationUtils
+importlib.reload(annotationUtils)
+
+
+class ImJoyPlugin():
+    def setup(self):
+        print('setup in python')
+
+    # Create masks
+    async def create_masks(self,data):
+        
+        # Ask for files/folders
+        root = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/Segmentation__smFISH/annotated_CellMaskNew/train/w1_bac_kif1c_6512_p02'
+        
+        try: 
+            path_open = await api.showFileDialog(root=root)
+        except:
+            return
+
+        print(path_open)
+
+        # Process file/folder       
+        annotationUtils.proc_files(path_open = path_open,
+                          channels = data['channels'],
+                          annot_type = data['annot_type'],
+                          annot_ext =  data['annot_ext'],
+                          search_recursive = data['search_recursive'],
+                          image_size = data['image_size'],
+                          log_fun = api.log)
+
+    def run(self, my):
+        print('hello world.')
+        return my
+
+api.export(ImJoyPlugin())
+</script>
