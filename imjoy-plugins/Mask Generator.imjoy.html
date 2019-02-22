@@ -1,8 +1,8 @@
-﻿<docs>
+<docs>
 
 Window plugin to generate masks from annotations.
 
-# Acknowledgement 
+# Acknowledgement
 * CSS style: spectre.css
 * Menu that folds: https://tutorialzine.com/2015/08/quick-tip-css-only-dropdowns-with-the-checkbox-hack
 </docs>
@@ -35,7 +35,7 @@ Window plugin to generate masks from annotations.
 class ImJoyPlugin {
 
   async setup() {
-  
+
     // For vue
     this.store = {
       channels: [],
@@ -44,7 +44,7 @@ class ImJoyPlugin {
       ch_masks:[],
       image_size_h : 2048,
       image_size_w : 2048,
-      annot_ext:'_annotation.json',
+      annot_ext:[],
       img_ext:'.tif',
       annot_type:'geojson',
       annot_type2:'geojson',
@@ -57,20 +57,13 @@ class ImJoyPlugin {
       data: this.store,
       methods: {
 
-       // Define root folder 
-        define_root: async function() {
-          var root = await api.call("Image Segmentation", "define_root", {'root': this.root_folder})
-          console.log(root)
-          this.root_folder = root
-        },
-
-        // Mask generator: remove channel  
+        // Mask generator: remove channel
         remove_channel: function(ch) {
           console.log(this)
           this.channels.splice(this.channels.indexOf(ch), 1);
         },
 
-        // Mask generator: add channel  
+        // Mask generator: add channel
         add_channel: function() {
           console.log(this)
            this.channels.push({
@@ -81,15 +74,15 @@ class ImJoyPlugin {
             // Reset fields
             this.ch_name = []
             this.ch_ident = []
-            this.ch_masks = []   
+            this.ch_masks = []
         },
 
         //Create masks
         create_masks: async function() {
            console.log(this.annot_type)
            await api.call(
-                    "Image Segmentation", "create_masks", 
-                    {   
+                    "Segmentation Tools", "create_masks",
+                    {
                         'channels': this.channels,
                         'search_recursive': this.search_recursive,
                         'annot_ext': this.annot_ext,
@@ -135,7 +128,7 @@ class ImJoyPlugin {
 
 }
 
-api.export(new ImJoyPlugin()) 
+api.export(new ImJoyPlugin())
 </script>
 
 <attachment name="app_template">
@@ -238,6 +231,8 @@ api.export(new ImJoyPlugin())
 		</div>
 		<!-- End of card to specify masks -->
 
+        <br>
+
 		<!-- Card to generate masks -->
 		<div class="card">
 			<div class="card-header">
@@ -253,7 +248,7 @@ api.export(new ImJoyPlugin())
 						<!-- Annotation extension -->
 						<div class="col-4 col-lg-12">
 							<div class="input-group"> <span class="input-group-addon">Annotation file extension</span>
-								<input type="text" class="form-input" v-model="annot_ext">
+								<input type="text" class="form-input" v-model="annot_ext" placeholder="file extension">
 							</div>
 						</div>
 						<!-- Annotation Type -->
@@ -268,7 +263,7 @@ api.export(new ImJoyPlugin())
                                 </div>
                             </div>
                         </div>
-					
+
                         <!-- Image size -->
                         <div class="col-1 col-lg-12"></div>
                         <div class="col-3 col-lg-12">
@@ -285,7 +280,7 @@ api.export(new ImJoyPlugin())
                 <form class="form-horizontal">
                     <div class="form-group">
                         <div class="col-2 col-lg-12">
-                            <button class="btn btn-primary" @click="create_masks">Select files or folder and create masks</i>
+                            <button class="btn btn-primary" @click="create_masks" :disabled="annot_ext.length==0">Select files or folder and create masks</i>
                             </button>
                         </div>
                         <div class="col-3 col-lg-12"></div>
