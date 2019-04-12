@@ -5,7 +5,7 @@
 #%% Test files
 #  1. Change to local directory
 #  2. Test data are on GitHub: img-segment/data/postprocessing/outputs/data/postprocessing/outputs
-WorkDir = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/postprocessing'
+outputs_dir = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/postprocessing/outputs'
 
 #%% Test modules
 import importlib  # to reload: importlib.reload(AnnotationImporter
@@ -27,8 +27,6 @@ min_size_cell   = 20   # 200; minimum size of cell
 min_size_nuclei = 100  # 1000; minimum size of the nuclei
                        # skimage.morphology.remove_small_objects
 simplify_tol = 1     # Tolerance for polygon simplification with shapely (0 to not simplify)
-
-outputs_dir = os.path.join(WorkDir, 'outputs')
 
 if os.path.exists(outputs_dir):
     for file in [f for f in os.listdir(outputs_dir) if '-outputs.png' in f]:
