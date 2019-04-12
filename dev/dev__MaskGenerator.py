@@ -22,6 +22,10 @@ annotationUtils.proc_files(path_open = file_open_fiji,
                           image_size = (2048,2048))
 
 
+
+
+
+
 #%% Test function - read annotations from FIJI 
 import annotationUtils
 importlib.reload(annotationUtils)

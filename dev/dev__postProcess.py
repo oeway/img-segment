@@ -4,8 +4,8 @@
 
 #%% Test files
 #  1. Change to local directory
-#  2. Test data are on GitHub: img-segment/data/postprocessing/outputs/data/postprocessing/outputs
-outputs_dir = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/postprocessing/outputs'
+#  2. Test data are on GitHub: img-segment/data/postprocessing/outputs/data/postprocessing/cells_nuclei
+outputs_dir = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/postprocessing/cells_nuclei'
 
 #%% Test modules
 import importlib  # to reload: importlib.reload(AnnotationImporter

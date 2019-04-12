@@ -1,20 +1,20 @@
 # Image annotation
 
-In this step, the structures of interest, e.g. cell and nuclei, are outline in
+Annotations are necessary to provide a ground truth for the neural network during
+training. In this step, the structures of interest, e.g. cell and nuclei, are outline in
 the images to generate data that will be used to train the neural network.
 
-For the moment, we support annotations f
+For the moment, we support annotations
 
-* Annotations stored in [GeoJson](http://geojson.org/) format. We provide a dedicated ImJoy plugin to generate these.
+* Annotations performed in ImJoy. These annotations can be stored in
+  the [GeoJson](http://geojson.org/) format.
 * Annotations from [**FIJI**](https://fiji.sc/).
 
 Using annotations in other formats is in principle possible but
 will require the implementation of dedicated wrappers.
 
-
-## Annotations in GeoJson with ImJoy
+## Annotations in ImJoy
 ImJoy provides a dedicated plugin to perform annotations
-
 
 
 ## Annotations with FIJI
@@ -43,12 +43,11 @@ FIJI allows to annotate images, and save the annotations into a separate file.
 e.g. nuclei touching the cell border, can be removed in a post-processing step.
 
 
-## Convert annotations to images
+## Convert annotations to mask images
 
-Once you have annotated the images, you have to convert these annotations to images which
-can be used as an input for the A-net. We provide a dedicated ImJoy
-plugin to perform this task. This plugin has different **tags**, which render the plugin
- for a given segmentation tasks. You only have to specify a few key properties of your data.
+Once you have annotated the images, you have to convert these annotations to
+mask images, which are used as input for the neural network. We provide a dedicated ImJoy
+plugin to perform this task.
 
 The screenshot shown below shows the plugin interface for the segmentation of the
 cell membrane in the example data. Note that here is only one channel.
@@ -62,18 +61,20 @@ For the example above, you have to specify
 3. File extension of the annotations (FIJI annotations with `_RoiSet.zip`)
 
 Once you specified these parameters you can convert an entire folder with annotations
-by pressing on the plugin itself (the blue text `AnnotationImporter`). You will be
+by pressing on the plugin itself (the blue text `AnnotationImporter`).
+
+
+You will be
 asked to specify the parent folder containing the different data-sets.
 
-The plugin will open all annotation files, create the necessary mask images, and
-save them together with the corresponding images in a new folder `unet_data` in
+The plugin will open all annotation files, create the specified mask images, and
+save them together with the corresponding raw images in a new folder `unet_data` in
 the processed folder. It contains two subfolders **train** and **valid**. Here,
 a dedicated folder with the name of the image is created. The actual images are
 then named with the channel identifier (e.g. `cells`) and the image masks with
 the channel identifier followed by the mask type (e.g. `cell_mask_edge.png`).
 
 ```
-.
 ├─ anet/
 │  ├─ train/
 │  │  ├─ C3-img4
@@ -108,5 +109,4 @@ This directory can be used as an input directory for the training.
 By default, ImJoy will open files in your home folder. If your data is at a different
 location, you can set a root folder. Each time you specify a file, ImJoy will open
 the file-dialog in this root folder. Press the button `Root folder` and specify the
-desired folder. The specified root folder is also saved, and will be resused the next time you launch
-ImJoy.
+desired folder. The specified root folder is also saved, and will be reused the next time you launchImJoy.
