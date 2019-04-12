@@ -1,20 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Sep 21 12:12:50 2018
-
-@author: fmueller
-"""
-
-
 #%% Test files
 file_open_geojson = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/Segmentation__smFISH/annotated_CellMaskNew/train/w1_bac_kif1c_6512_p02/w1_bac_kif1c_6512_p02_DAPI_annotation.json'
 file_open_fiji    = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/Segmentation__smFISH/annotated_CellMaskNew/train/w1_bac_kif1c_6512_p02/w1_bac_kif1c_6512_p02_Cy5_ROI.zip'
 file_open         = file_open_geojson
-
-
-
-
 
 
 #%% Test modules

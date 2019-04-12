@@ -1,19 +1,27 @@
-
 # IMPORTS
-import scipy
-from scipy.ndimage.morphology import binary_fill_holes
-from skimage.measure import label
-from skimage.segmentation import find_boundaries
-from skimage.filters import threshold_otsu
-from scipy import ndimage
-from scipy import signal
-import skimage
+import numpy as np
+
+from skimage import measure
 from skimage import morphology
 from skimage import filters
+from skimage import dtype_limits
 from skimage.morphology import disk
 from skimage.morphology import greyreconstruct
-from skimage import dtype_limits
-import numpy as np
+from skimage.segmentation import find_boundaries
+from skimage.filters import threshold_otsu
+
+from scipy.ndimage.morphology import binary_fill_holes
+from scipy import ndimage
+from scipy import signal
+from scipy.misc import imsave
+
+# IMPORTS to create polygons from segmentation masks
+
+from shapely.geometry import Polygon as shapely_polygon  # Used to simplify the mask polygons
+from descartes import PolygonPatch  # To plot polygons as patches (https://bitbucket.org/sgillies/descartes/src): pip install descartes
+from geojson import Polygon as geojson_polygon
+from geojson import Feature, FeatureCollection, dump  # Used to create and save the geojson files: pip install geojson
+
 
 
 def _add_constant_clip(img, const_value):
@@ -96,36 +104,36 @@ def segment_cells_nuclei(image_input, image_output, h_threshold=15, min_size_cel
         import palettable
         from skimage.color import label2rgb
         
-        scipy.misc.imsave(save_path + '_cell_mask.png',
+        imsave(save_path + '_cells_mask.png',
                           np.float32(cytoplasm_mask))
         
-        seg = label(cytoplasm_mask)
+        seg = measure.label(cytoplasm_mask)
         bound = find_boundaries(seg, background=0)
 
         image_label_overlay = label2rgb(seg, bg_label=0, bg_color=(
             0.8, 0.8, 0.8), colors=palettable.colorbrewer.sequential.YlGn_9.mpl_colors)
         image_label_overlay[bound == 1, :] = 0
 
-        scipy.misc.imsave(save_path + '_cell_color_mask.png',
+        imsave(save_path + '_cells_color_mask.png',
                           np.float32(image_label_overlay))
 
         # tiff.imsave(img_name,np.float32(_nuclei_mask))
-        scipy.misc.imsave(save_path + '_nuclei_mask.png',
+        imsave(save_path + '_nuclei_mask.png',
                           np.float32(nuclei_mask))
 
 
-        seg = label(nuclei_mask)
+        seg = measure.label(nuclei_mask)
         bound = find_boundaries(seg, background=0)
         image_label_overlay = label2rgb(seg, bg_label=0, bg_color=(
             0.8, 0.8, 0.8), colors=palettable.colorbrewer.sequential.YlGn_9.mpl_colors)
         image_label_overlay[bound == 1, :] = 0
-        scipy.misc.imsave(save_path + '_nuclei_color_mask.png',
+        imsave(save_path + '_nuclei_color_mask.png',
                           np.float32(image_label_overlay))
 
     return cytoplasm_mask, nuclei_mask
 
 
-def segment_nuclei_cellcog(im, h_threshold=10, bg_window_size=100, min_size=1000):
+def segment_nuclei_cellcog(im, h_threshold=15, bg_window_size=100, min_size=1000):
     im = im.astype('double')
     im = (im - im.min()) / im.max() * 255
     im = im.astype('uint8')
@@ -160,10 +168,141 @@ def segment_nuclei_cellcog(im, h_threshold=10, bg_window_size=100, min_size=1000
 
     # h-maxima detection
     res = extended_minima(-distance, h_threshold)
-    label_nuc = skimage.measure.label(res)
+    label_nuc = measure.label(res)
 
     # watershed
     wat = morphology.watershed(-distance, label_nuc)
     result_label_seg = morphology.remove_small_objects(
-        wat * img_threshold, 1000)
+        wat * img_threshold, min_size)
     return result_label_seg
+
+
+
+def masks_to_polygon(img_mask,simplify_tol=0, plot_simplify=False, save_name=None):
+    ''' 
+    Find contours with skimage, simplify them (optional), store as geojson:
+        
+    1. Loops over each detected object, creates a mask and finds it contour
+    2. Contour can be simplified (reduce the number of points) 
+        - uses shapely: https://shapely.readthedocs.io/en/stable/manual.html#object.simplify
+         - will be performed if tolernace simplify_tol is != 0
+   3. Polygons will be saved in geojson format, which can be read by ImJoys' 
+      AnnotationTool. Annotations for one image are stored as one feature collection
+      each annotation is one feature:   
+         "type": "Feature",
+          "geometry": {"type": "Polygon","coordinates": [[]]}
+          "properties": null  
+        
+    Args:
+        img_mask (2D numpy array): image wiht segmentation masks. Background is 0, 
+                                each object has a unique pixel value.
+        simplify_tol (float): tolerance for simplification (All points in the simplified object 
+                              will be within the tolerance distance of the original geometry)
+                              No simplification will be performed when set to 0.
+        plot_simplify (Boolean): plot results of simplifcation. Plot will be shown for EACH mask. 
+                                 Use better for debuggin only.
+        save_name (string): full file-name to save GeoJson file. Not file will be
+                            saved when None.                       
+        
+    Returns:
+        contours (List): contains polygon of each object stored as a numpy array.
+        feature_collection : GeoJson feature collection
+    '''
+    
+    # Prepare list to store polygon coordinates and geojson features
+    contours = []
+    features = []   # For geojson
+    
+    Ncells = img_mask.max()   
+    # Loop over all masks (except with index 0 which is background)
+    for i,obj_int in enumerate(range(1,Ncells)):
+        
+        # Create binary mask for current object and find contour
+        img_mask_loop = np.zeros((img_mask.shape[0],img_mask.shape[1]))
+        img_mask_loop[img_mask==obj_int] = 1
+        contour = measure.find_contours(img_mask_loop, 0.5)
+        
+        # Proceeed only if one contour was found
+        if len(contour) == 1:
+            
+            contour_asNumpy = contour[0]
+            contour_asList  = contour_asNumpy.tolist()
+    
+            # Simplify polygon if tolerance is set to any value except 0
+            if simplify_tol != 0:
+                poly_shapely = shapely_polygon(contour_asList)
+                poly_shapely_simple  = poly_shapely.simplify(simplify_tol, preserve_topology=False)
+                contour_asList  = list(poly_shapely_simple.exterior.coords)
+                contour_asNumpy = np.asarray(contour_asList)
+            
+                if plot_simplify:
+                    plot_polygons(poly_shapely,poly_shapely_simple,obj_int)
+                    
+                    
+            # Append to polygon list
+            contours.append(contour_asNumpy)
+            
+            # Create and append feature for geojson
+            pol_loop = geojson_polygon(contour_asList)
+            features.append(Feature(geometry=pol_loop))
+                
+        else:
+            print(f'More than one / or no contour found for object {obj_int}')
+    
+    # Create geojson feature collection
+    feature_collection = FeatureCollection(features)
+    
+    # Save to json file
+    if save_name:
+        with open(save_name, 'w') as f:
+            dump(feature_collection, f)
+            f.close()
+
+    return contours, feature_collection
+
+
+
+
+def plot_polygons(poly_shapely,poly_shapely_simple,fig_title='Shapely polygon simplification'):
+    '''
+    Function plots two shapely polygons using the descartes library. 
+    
+    Args:
+        poly_shapely (string): shapely polygon before simplification
+        poly_shapely (string): shapely polygon after simplification
+        fig_title (string): title of figure window    
+    '''
+    import matplotlib.pyplot as plt
+    
+    # Create a matplotlib figure
+    fig = plt.figure(num=fig_title, figsize=(10, 4), dpi=180)
+    
+    # *** Original polygon
+    ax = fig.add_subplot(121)
+    
+    # Make the polygon into a patch and add it to the subplot
+    patch = PolygonPatch(poly_shapely, facecolor='#32c61b', edgecolor='#999999')
+    ax.add_patch(patch)
+    
+    # Fit the figure around the polygon's bounds, render, and save
+    minx, miny, maxx, maxy = poly_shapely.bounds
+    w, h = maxx - minx, maxy - miny
+    ax.set_xlim(minx - 0.2*w, maxx + 0.2*w)
+    ax.set_ylim(miny - 0.2*h, maxy + 0.2*h)
+    ax.set_aspect(1)
+    ax.set_title('Original mask')
+    
+    # *** Simplified polygon
+    
+    ax = fig.add_subplot(122)
+    
+    # Make the polygon into a patch and add it to the subplot
+    patch = PolygonPatch(poly_shapely_simple, facecolor='#32c61b', edgecolor='#999999')
+    ax.add_patch(patch)
+    
+    # Fit the figure around the polygon's bounds, render, and save
+    w, h = maxx - minx, maxy - miny
+    ax.set_xlim(minx - 0.2*w, maxx + 0.2*w)
+    ax.set_ylim(miny - 0.2*h, maxy + 0.2*h)
+    ax.set_aspect(1)
+    ax.set_title('Simplified mask')
