@@ -1,6 +1,6 @@
 #%% Test files
-file_open_geojson = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/Segmentation__smFISH/annotated_CellMaskNew/train/w1_bac_kif1c_6512_p02/w1_bac_kif1c_6512_p02_DAPI_annotation.json'
-file_open_fiji    = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/Segmentation__smFISH/annotated_CellMaskNew/train/w1_bac_kif1c_6512_p02/w1_bac_kif1c_6512_p02_Cy5_ROI.zip'
+file_open_geojson = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/annotationTypes/w1_bac_kif1c_6512_p02_DAPI_annotation.json'
+file_open_fiji    = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/annotationTypes/w1_bac_kif1c_6512_p02_Cy5_ROI.zip'
 file_open         = file_open_geojson
 
 
@@ -8,26 +8,16 @@ file_open         = file_open_geojson
 import importlib  # to reload: importlib.reload(AnnotationImporter
 import sys
 import os
+import annotationUtils
 sys.path.append('/Volumes/PILON_HD2/fmueller/Documents/code/ImJoy_dev/img-segment/imgseg')
 
-#%% Test function - process file
-import annotationUtils
-importlib.reload(annotationUtils)
 
-annotationUtils.proc_files(path_open = file_open_fiji,
-                          channels = [{'name': 'Cells', 'identifier': 'Cy5', 'masks': ['edge', 'distance']}, {'name': 'Nuclei', 'identifier': 'DAPI', 'masks': ['filled']}],
-                          annot_type = 'fiji',
-                          annot_ext =  'ROI.zip',
-                          search_recursive = False,
-                          image_size = (2048,2048))
-
-
-
-
+#%% ***************************************************************************
+#   TEST IMPORT FROM FIJI OR GEOJSON
+#   ***************************************************************************
 
 
 #%% Test function - read annotations from FIJI 
-import annotationUtils
 importlib.reload(annotationUtils)
 
 annotationsFiji = annotationUtils.FijiImporter()
@@ -36,7 +26,6 @@ annot_dict, roi_size_all = annotationsFiji.load(file_open_fiji)
 
 
 #%% Test function - read annotations from  GeoJson 
-import annotationUtils
 importlib.reload(annotationUtils)
 
 annotationsGeoJson= annotationUtils.GeojsonImporter()
@@ -44,9 +33,14 @@ file_open = file_open_geojson
 annot_dict, roi_size_all = annotationsGeoJson.load(file_open_geojson)
 
 
+
+#%% ***************************************************************************
+#   TEST: create different mask types
+#   ***************************************************************************
+
+
 #%% Test function -  Create binary masks
 importlib.reload(annotationUtils)
-
 binaryMasks = annotationUtils.BinaryMaskGenerator(image_size = (2048,2048), erose_size=5, obj_size_rem=500, save_indiv=True)
 mask_dict = binaryMasks.generate(annot_dict)
 
@@ -63,6 +57,30 @@ importlib.reload(annotationUtils)
 
 distMapMasks = annotationUtils.DistanceMapGenerator(truncate_distance=None)
 mask_dict    = distMapMasks.generate(annot_dict,mask_dict)
+
+
+
+
+#%% ***************************************************************************
+#   TEST: entire workflow
+
+#%% Test function - process file
+import annotationUtils
+importlib.reload(annotationUtils)
+
+annotationUtils.proc_files(path_open = file_open_fiji,
+                          channels = [{'name': 'Cells', 'identifier': 'Cy5', 'masks': ['edge', 'distance']}, {'name': 'Nuclei', 'identifier': 'DAPI', 'masks': ['filled']}],
+                          annot_type = 'fiji',
+                          annot_ext =  'ROI.zip',
+                          search_recursive = False,
+                          image_size = (2048,2048))
+
+
+
+
+#%% ***************************************************************************
+#   MISC SNIPPETS (might not work anymore due to updates)
+#   ***************************************************************************
 
 
 #%% Save masks
@@ -90,16 +108,6 @@ masks.save(mask_dict,'distance_map',file_name_save)
 # Weighted edge
 file_name_save = os.path.join(drive,path, file_base + '__MASK_edgeWeight.png')
 masks.save(mask_dict,'edge_weighted',file_name_save)
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -147,7 +155,6 @@ for feat_idx, feat in enumerate(data_json['features']):
     annot_dict_json[key_annot] = {}
     annot_dict_json[key_annot]['type'] = feat['geometry']['type']
     annot_dict_json[key_annot]['pos'] = np.squeeze(np.asarray(feat['geometry']['coordinates']))
-
 
 
 

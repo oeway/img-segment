@@ -441,7 +441,7 @@ class BinaryMaskGenerator(MaskGenerator):
                 (self.image_size[0], self.image_size[1], len(annot_dict)), dtype=np.bool)
 
         # Image used to draw lines - for edge mask for freelines
-        im_freeline = Image.new('1', (image_size[1],image_size[0]), color=0)
+        im_freeline = Image.new('1', (self.image_size[1],self.image_size[0]), color=0)
         draw = ImageDraw.Draw(im_freeline)
 
         # Loop over all roi
