@@ -1,6 +1,9 @@
 #%% Test files
 file_open_geojson = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/annotationTypes/w1_bac_kif1c_6512_p02_DAPI_annotation.json'
 file_open_fiji    = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/annotationTypes/w1_bac_kif1c_6512_p02_Cy5_ROI.zip'
+file_open_fiji    = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/annotationTypes/img_RectangularCrop_Cy5_ROI.zip'  # Test if bugs with rectangular crops
+file_open_fiji    = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/annotationTypes/img_RectangularCrop_FreeHand_Cy5_RoiSet.zip'  # Test if bugs with rectangular crops
+
 file_open         = file_open_geojson
 
 
@@ -69,11 +72,13 @@ import annotationUtils
 importlib.reload(annotationUtils)
 
 annotationUtils.proc_files(path_open = file_open_fiji,
-                          channels = [{'name': 'Cells', 'identifier': 'Cy5', 'masks': ['edge', 'distance']}, {'name': 'Nuclei', 'identifier': 'DAPI', 'masks': ['filled']}],
+                          channels = [{'name': 'Cells', 'identifier': 'Cy5', 'masks': ['edge', 'distance','filled']}],
                           annot_type = 'fiji',
                           annot_ext =  'ROI.zip',
                           search_recursive = False,
-                          image_size = (2048,2048))
+                          image_size = (2048,2048)
+                          img_ext='.tif',
+                          save_type = 'subfolder')
 
 
 

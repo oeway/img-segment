@@ -8,6 +8,7 @@
 import numpy as np
 import os
 import sys
+import shutil
 
 # Read annotations
 from read_roi import read_roi_zip  # https://github.com/hadim/read-roi
@@ -87,18 +88,30 @@ def log_statuts(log_fun,message):
 # ---------------------------------------------------------------------------
 
 
-def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,image_size = (2048,2048),log_fun=None):
+def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,image_size = (2048,2048),save_type = 'subfolder',log_fun=None,img_ext='.tif'):
     '''
     Read annotations from file or folder and create masks.
 
     Args:
         path_open (string): file-name of annotation or folder to be searched for annotations
-
+        save_type (string): determines how masks are saved. 
+                                'subfolder' creates for each image a subfolder with 
+                                        the same name where the masks are saved. Masks and input images 
+                                        will have the same name for different files 
+                                        Channel identifier is REMOVED from the subfolder name. 
+                                        This allows to combine images with different channels.
+                                'suffix'  will save the masks in the same folder as the 
+                                        actual annotations and will add a mask specific suffix.
+       img_ext (string): file extension of raw images, will be used to copy these images 
+                         when the option 'subfolder' was selected. 
     Returns:
             annot_dict (dictionary): contains all annotated elements
             roi_size_all (list): contains size of each annotated element
     '''
 
+
+    # Specify how masks are saved: in subfolder, or by suffix
+    save_type = 'subfolder'
 
     # Assemble list with all files to be processed
     files_proc = []
@@ -137,7 +150,6 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
     # Instance to save masks
     masks = MaskGenerator()
 
-
     # Instances to to create masks
     binaryMasks       = BinaryMaskGenerator(image_size = (2048,2048), erose_size=5, obj_size_rem=500, save_indiv=True)
     weightedEdgeMasks = WeightedEdgeMaskGenerator(sigma=8, w0=10)
@@ -155,6 +167,7 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
 
     # Loop over all files
     for file_proc in files_proc:
+        
         log_statuts(log_fun,'PROCESSING FILE:')
         log_statuts(log_fun,file_proc)
 
@@ -174,24 +187,56 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
 
         log_statuts(log_fun,f'Mask type identified: {file_ch}')
 
+        # Create folders to save mask
+        if save_type is 'subfolder':
+            
+            
+            # Create sub-folder and remove channel identifier
+            subfolder = file_base.replace(file_ch, "")
+            folder_save = os.path.join(drive,path,'_masks',subfolder)
+            create_folder(folder_save)
+
+            # Look for raw image
+            img_raw = os.path.join(drive,path,file_base+img_ext)
+            if os.path.isfile(img_raw):
+                img_raw_new = os.path.join(folder_save, channels_new[file_ch]['name']+img_ext)
+                shutil.copy(img_raw, img_raw_new)
+                log_statuts(log_fun,f'Copying raw image: {img_raw}')
+                
+            else:
+                log_statuts(log_fun,f'Raw image does not exist: {img_raw}')
+            
+        elif save_type is 'suffix':
+            folder_save = os.path.join(drive,path)
+            
         # Read annotation:  Correct class has been selected based on annot_type
         annot_dict, roi_size_all = annotationsImporter.load(file_proc)
-
-        # Create masks
 
         # Binary - is always necessary to creat other masks
         log_statuts(log_fun,' .... creating binary masks .....')
         mask_dict = binaryMasks.generate(annot_dict)
 
+
+  
+
         # Save binary masks FILLED if specified
         if 'filled' in channels_new[file_ch]['masks']:
 
-            file_name_save = os.path.join(drive,path, file_base + '__MASK_fill.png')
+            if save_type is 'subfolder':
+                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__MASK_fill.png')
+            elif save_type is 'suffix':    
+                file_name_save = os.path.join(folder_save, file_base + '__MASK_fill.png')
+                      
             masks.save(mask_dict,'fill',file_name_save)
 
         # Edge mask
         if 'edge' in channels_new[file_ch]['masks']:
-            file_name_save = os.path.join(drive,path, file_base + '__MASK_edge.png')
+            
+            if save_type is 'subfolder':
+                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__MASK_edge.png')
+            elif save_type is 'suffix':    
+                file_name_save = os.path.join(drive,path, file_base + '__MASK_edge.png')
+            
             masks.save(mask_dict,'edge',file_name_save)
 
         # Distance map
@@ -200,9 +245,13 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
             mask_dict    = distMapMasks.generate(annot_dict,mask_dict)
 
             # Save
-            file_name_save = os.path.join(drive,path, file_base + '__MASK_distMap.png')
+            if save_type is 'subfolder':
+                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__MASK_distMap.png')
+            elif save_type is 'suffix':    
+                file_name_save = os.path.join(drive,path, file_base + '__MASK_distMap.png')            
+        
             masks.save(mask_dict,'distance_map',file_name_save)
-
+        
 
         # Weighted edge mask
         if 'weigthed' in channels_new[file_ch]['masks']:
@@ -210,9 +259,12 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
             mask_dict = weightedEdgeMasks.generate(annot_dict,mask_dict)
 
             # Save
-            file_name_save = os.path.join(drive,path, file_base + '__MASK_edgeWeight.png')
+            if save_type is 'subfolder':
+                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__MASK_edgeWeight.png')
+            elif save_type is 'suffix':    
+                file_name_save = os.path.join(drive,path, file_base + '__MASK_edgeWeight.png')
+                
             masks.save(mask_dict,'edge_weighted',file_name_save)
-
 
 # ---------------------------------------------------------------------------
 # Classes to import annotations
@@ -384,12 +436,10 @@ class MaskGenerator():
             elif (mask_key is 'edge') or (mask_key is 'fill') :
                 imsave(file_name, 255*mask_save)
 
-
             elif mask_key is 'edge_weighted':
                 mask_rescale = (mask_save - mask_save.min()) * 255 / (mask_save.max()-mask_save.min())
                 mask_rescale = mask_rescale.astype('uint8')
                 imsave(file_name, mask_rescale)
-
 
             else:
                 imsave(file_name, mask_save.astype('float32'))
