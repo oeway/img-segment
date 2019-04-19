@@ -1,3 +1,9 @@
+# CAN BE SIMPLIFIED. 
+#  + INFORMATION ABOUT THE MASK TYPE IS STORED AS A PROPERTY OF THE GEJSON 
+#       properties= {"label": ...)
+#  + INFORMATION ABOUT THE IMAGE SIZE IS STORED AS INFO IN THE GEOSON
+#     bbox = [0, 0.0, image_size[0], image_size[1]]
+
 
 # ---------------------------------------------------------------------------
 # Imports
@@ -110,9 +116,6 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
     '''
 
 
-    # Specify how masks are saved: in subfolder, or by suffix
-    save_type = 'subfolder'
-
     # Assemble list with all files to be processed
     files_proc = []
 
@@ -144,6 +147,7 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
 
     if annot_type == 'fiji':
         annotationsImporter = FijiImporter()
+        
     elif annot_type == 'geojson':
         annotationsImporter = GeojsonImporter()
 
@@ -155,7 +159,7 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
     weightedEdgeMasks = WeightedEdgeMaskGenerator(sigma=8, w0=10)
     distMapMasks      = DistanceMapGenerator(truncate_distance=None)
 
-    # Transform channel list in dictionary
+    # Create new channel dictionary: key for each entry is the channel identifier
     channels_new = {}
     for iter, dic in enumerate(channels):
         channels_new[dic["identifier"]] = {}
@@ -196,7 +200,7 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
             folder_save = os.path.join(drive,path,'_masks',subfolder)
             create_folder(folder_save)
 
-            # Look for raw image
+            # Find and copy raw data renamed with channel identifier
             img_raw = os.path.join(drive,path,file_base+img_ext)
             if os.path.isfile(img_raw):
                 img_raw_new = os.path.join(folder_save, channels_new[file_ch]['name']+img_ext)
@@ -225,7 +229,7 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
             if save_type is 'subfolder':
                 file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__MASK_fill.png')
             elif save_type is 'suffix':    
-                file_name_save = os.path.join(folder_save, file_base + '__MASK_fill.png')
+                file_name_save = os.path.join(folder_save, file_base + '__mask_fill.png')
                       
             masks.save(mask_dict,'fill',file_name_save)
 
@@ -233,9 +237,9 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
         if 'edge' in channels_new[file_ch]['masks']:
             
             if save_type is 'subfolder':
-                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__MASK_edge.png')
+                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__mask_edge.png')
             elif save_type is 'suffix':    
-                file_name_save = os.path.join(drive,path, file_base + '__MASK_edge.png')
+                file_name_save = os.path.join(drive,path, file_base + '__mask_edge.png')
             
             masks.save(mask_dict,'edge',file_name_save)
 
@@ -246,9 +250,9 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
 
             # Save
             if save_type is 'subfolder':
-                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__MASK_distMap.png')
+                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__mask_distMap.png')
             elif save_type is 'suffix':    
-                file_name_save = os.path.join(drive,path, file_base + '__MASK_distMap.png')            
+                file_name_save = os.path.join(drive,path, file_base + '__mask_distMap.png')            
         
             masks.save(mask_dict,'distance_map',file_name_save)
         
@@ -260,9 +264,9 @@ def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,
 
             # Save
             if save_type is 'subfolder':
-                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__MASK_edgeWeight.png')
+                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__mask_edgeWeight.png')
             elif save_type is 'suffix':    
-                file_name_save = os.path.join(drive,path, file_base + '__MASK_edgeWeight.png')
+                file_name_save = os.path.join(drive,path, file_base + '__mask_edgeWeight.png')
                 
             masks.save(mask_dict,'edge_weighted',file_name_save)
 
@@ -309,6 +313,12 @@ class GeojsonImporter(AnnotationImporter):
 
         with open(file_open, encoding='utf-8-sig') as fh:
             data_json = json.load(fh)
+
+        # Overwrite default file size if bounding box is present
+        if 'bbox' in data_json:
+            self.image_size = (int(data_json['bbox'][2]-data_json['bbox'][0]),
+                               int(data_json['bbox'][3]-data_json['bbox'][1]))
+
 
         # Loop over list and create simple dictionary & get size of annotations
         annot_dict = {}
