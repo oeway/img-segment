@@ -42,7 +42,7 @@
     
     
       
-        <title>Projection - Cell segmentation with ImJoy</title>
+        <title>2D projection - Cell segmentation with ImJoy</title>
       
     
     
@@ -104,7 +104,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="../#3d-images-2d-projections" tabindex="1" class="md-skip">
+      <a href="../#2d-projections" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -130,7 +130,7 @@
                 Cell segmentation with ImJoy
               </span>
               <span class="md-header-nav__topic">
-                Projection
+                2D projection
               </span>
             
           
@@ -226,8 +226,34 @@
   
     <li class="md-tabs__item">
       
-        <a href="./" title="Training" class="md-tabs__link md-tabs__link--active">
+        <a href="../data-organization/" title="Training" class="md-tabs__link md-tabs__link--active">
           Training
+        </a>
+      
+    </li>
+  
+
+      
+        
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="../prediction/" title="Prediction" class="md-tabs__link">
+          Prediction
+        </a>
+      
+    </li>
+  
+
+      
+        
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="../FAQ/" title="FAQ" class="md-tabs__link">
+          FAQ
         </a>
       
     </li>
@@ -323,18 +349,6 @@
   </li>
 
         
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../data-organization/" title="Data organization" class="md-nav__link">
-      Data organization
-    </a>
-  </li>
-
-        
       </ul>
     </nav>
   </li>
@@ -365,6 +379,18 @@
           
           
 
+
+  <li class="md-nav__item">
+    <a href="../data-organization/" title="Data organization" class="md-nav__link">
+      Data organization
+    </a>
+  </li>
+
+        
+          
+          
+          
+
   
 
 
@@ -375,8 +401,8 @@
       
     
     
-    <a href="./" title="Projection" class="md-nav__link md-nav__link--active">
-      Projection
+    <a href="./" title="2D projection" class="md-nav__link md-nav__link--active">
+      2D projection
     </a>
     
   </li>
@@ -421,10 +447,82 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
     
     <label class="md-nav__link" for="nav-3">
-      About
+      Prediction
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-3">
+        Prediction
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../prediction/" title="Prediction" class="md-nav__link">
+      Prediction
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      FAQ
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        FAQ
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../FAQ/" title="FAQ" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      About
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
         About
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -487,20 +585,12 @@
               
                 
                 
-                <h1 id="3d-images-2d-projections">3D images: 2D projections<a class="headerlink" href="#3d-images-2d-projections" title="Permanent link">&para;</a></h1>
+                <h1 id="2d-projections">2D projections<a class="headerlink" href="#2d-projections" title="Permanent link">&para;</a></h1>
 <p>Image segmentation is performed in 2D. 3D images thus have to transformed into
 2D images with a projection along Z. We provide a plugin to perform such projections,
 where we provide different approaches.</p>
 <p>The easiest method to achieve is the so-called <strong>maximum intensity projection (MIP)</strong>,
 where for each XY position the highest pixel value along the z-axis is used.</p>
-<!-- [ToDo]
-## Focus projection
-We found that this approach can yield blurry cell boundaries because out-of-focus
-contributions are considered. We proposed an alternative strategy, where projections
-are performed by considered **focus measurements**, essentially how "sharp" the image
-is. In this approach, we first blurry (out-of-focus) slices based on a global
-focus measurement, and the resulting image is projected by using local
-focus measurements to use regions with highest focus values. -->
                 
                   
                 

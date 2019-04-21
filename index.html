@@ -226,8 +226,34 @@
   
     <li class="md-tabs__item">
       
-        <a href="projection/" title="Training" class="md-tabs__link">
+        <a href="data-organization/" title="Training" class="md-tabs__link">
           Training
+        </a>
+      
+    </li>
+  
+
+      
+        
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="prediction/" title="Prediction" class="md-tabs__link">
+          Prediction
+        </a>
+      
+    </li>
+  
+
+      
+        
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="FAQ/" title="FAQ" class="md-tabs__link">
+          FAQ
         </a>
       
     </li>
@@ -390,18 +416,6 @@
   </li>
 
         
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="data-organization/" title="Data organization" class="md-nav__link">
-      Data organization
-    </a>
-  </li>
-
-        
       </ul>
     </nav>
   </li>
@@ -432,8 +446,20 @@
 
 
   <li class="md-nav__item">
-    <a href="projection/" title="Projection" class="md-nav__link">
-      Projection
+    <a href="data-organization/" title="Data organization" class="md-nav__link">
+      Data organization
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="projection/" title="2D projection" class="md-nav__link">
+      2D projection
     </a>
   </li>
 
@@ -477,10 +503,82 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
     
     <label class="md-nav__link" for="nav-3">
-      About
+      Prediction
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-3">
+        Prediction
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="prediction/" title="Prediction" class="md-nav__link">
+      Prediction
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      FAQ
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        FAQ
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="FAQ/" title="FAQ" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      About
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
         About
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -587,20 +685,28 @@
                 
                 
                 <h1 id="deep-learning-with-imjoy">Deep learning with ImJoy<a class="headerlink" href="#deep-learning-with-imjoy" title="Permanent link">&para;</a></h1>
-<p>We provide Python libraries powered by <a href="https://imjoy.io/docs/#/"><strong>ImJoy</strong></a> to
-perform cell segmentation.</p>
+<p>We provide a complete framework to perform image segmentation with Deep learning
+powered by <a href="https://imjoy.io/docs/#/"><strong>ImJoy</strong></a>. We provide an integrated solution
+ranging from the creation of training data, over perform the actual training, and
+applying the trained models on new data.</p>
 <h2 id="imjoy">ImJoy<a class="headerlink" href="#imjoy" title="Permanent link">&para;</a></h2>
 <p><a href="https://imjoy.io/docs/#/"><strong>ImJoy</strong></a> is image processing platform with an easy to use interface powered by a Python engine running in the background. ImJoy plays a central role in most analysis workflows.</p>
 <p><img alt="ImJoyScreenshot" src="/img/imjoy-screenshot.png" /></p>
-<p>We provide links to install the different ImJoy plugins in dedicated ImJoy workspaces. Once installed, ImJoy remembers the workspaces and plugins and you simply have to open the web app and select the appropriate workspace <a href="https://imjoy.io/#/app">https://imjoy.io/#/app</a></p>
-<p>If you press on the installation link, the ImJoy web app will open and display a dialog asking if you want to install the specified plugin. To confirm, press the <code>install</code> button.</p>
+<p>We provide links to install the different ImJoy plugins. If you press on the installation link,
+the ImJoy browser app will open and display a dialog asking if you want to
+install the specified plugin. To confirm, press the <code>install</code> button.</p>
 <p><img alt="ImJoyScreenshot" src="/img/imjoy-installplugin.png" /></p>
-<p>Plugins require the <strong>ImJoy Plugin Engine</strong>, to perform computations in
-Python. You will need to <strong>install</strong> it only once, but <strong>launch</strong> it each time
-you work with ImJoy. For more information for how to install and use the pluging engine, please consult the <a href="https://imjoy.io/docs/#/user-manual?id=python-engine">ImJoy documentation</a>.</p>
+<p>The plugins will be installed in the dedicated workspace <code>segmentation</code>. ImJoy
+will store this workspace and the plugins in your browser, and the use it another
+time you have to simply open the browser app and select the appropriate
+workspace <a href="https://imjoy.io/#/app">https://imjoy.io/#/app</a></p>
+<p>Some of the plugins, e.g. for to train a neural network, require the <strong>ImJoy Plugin Engine</strong>.
+You will need to <strong>install</strong> it only once, but <strong>launch</strong> it each time
+you work with ImJoy. For more information for how to install and use the plugin engine, please consult the <a href="https://imjoy.io/docs/#/user-manual?id=python-engine">ImJoy documentation</a>.</p>
 <h2 id="segmentation-with-deep-learning">Segmentation with deep learning<a class="headerlink" href="#segmentation-with-deep-learning" title="Permanent link">&para;</a></h2>
-<p>We use deep learning to perform cell segmentation.</p>
-<p>This requires a training step in order for the model to learn how to segment the
+<p>We use the popular <a href="https://www.nature.com/articles/s41592-018-0261-2">U-net framework</a>
+to perform the segmentation task. As other deep learning methods, this requires a
+training step in order for the model to learn how to segment the
 data. Once a model is it training it can be applied on new data.</p>
 <p>We provide pre-trained models. While these model might already perform relatively
 well on your data, re-training them might further improve their performance.</p>

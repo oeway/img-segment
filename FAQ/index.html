@@ -13,7 +13,7 @@
         <meta name="description" content="ImJoy tools for cell segmentation">
       
       
-        <link rel="canonical" href="https://github.com/muellerflorian/img-segment/mask-generation/">
+        <link rel="canonical" href="https://github.com/muellerflorian/img-segment/FAQ/">
       
       
         <meta name="author" content="Florian Mueller, Wei Ouyang">
@@ -42,7 +42,7 @@
     
     
       
-        <title>Image annotation - Cell segmentation with ImJoy</title>
+        <title>FAQ - Cell segmentation with ImJoy</title>
       
     
     
@@ -104,7 +104,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="../#image-annotation" tabindex="1" class="md-skip">
+      <a href="../#faq" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -130,7 +130,7 @@
                 Cell segmentation with ImJoy
               </span>
               <span class="md-header-nav__topic">
-                Image annotation
+                FAQ
               </span>
             
           
@@ -202,7 +202,9 @@
       
         
 
-<nav class="md-tabs" data-md-component="tabs">
+  
+
+<nav class="md-tabs md-tabs--active" data-md-component="tabs">
   <div class="md-tabs__inner md-grid">
     <ul class="md-tabs__list">
       
@@ -224,8 +226,34 @@
   
     <li class="md-tabs__item">
       
-        <a href="../projection/" title="Training" class="md-tabs__link">
+        <a href="../data-organization/" title="Training" class="md-tabs__link">
           Training
+        </a>
+      
+    </li>
+  
+
+      
+        
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="../prediction/" title="Prediction" class="md-tabs__link">
+          Prediction
+        </a>
+      
+    </li>
+  
+
+      
+        
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="./" title="FAQ" class="md-tabs__link md-tabs__link--active">
+          FAQ
         </a>
       
     </li>
@@ -321,18 +349,6 @@
   </li>
 
         
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../data-organization/" title="Data organization" class="md-nav__link">
-      Data organization
-    </a>
-  </li>
-
-        
       </ul>
     </nav>
   </li>
@@ -363,8 +379,20 @@
 
 
   <li class="md-nav__item">
-    <a href="../projection/" title="Projection" class="md-nav__link">
-      Projection
+    <a href="../data-organization/" title="Data organization" class="md-nav__link">
+      Data organization
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../projection/" title="2D projection" class="md-nav__link">
+      2D projection
     </a>
   </li>
 
@@ -408,10 +436,122 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
     
     <label class="md-nav__link" for="nav-3">
-      About
+      Prediction
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-3">
+        Prediction
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../prediction/" title="Prediction" class="md-nav__link">
+      Prediction
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" checked>
+    
+    <label class="md-nav__link" for="nav-4">
+      FAQ
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        FAQ
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        FAQ
+      </label>
+    
+    <a href="./" title="FAQ" class="md-nav__link md-nav__link--active">
+      FAQ
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#all-good" title="All good?" class="md-nav__link">
+    All good?
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      About
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
         About
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -467,36 +607,9 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#annotations-in-geojson-with-imjoy" title="Annotations in GeoJson with ImJoy" class="md-nav__link">
-    Annotations in GeoJson with ImJoy
+  <a href="#all-good" title="All good?" class="md-nav__link">
+    All good?
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#annotations-with-fiji" title="Annotations with FIJI" class="md-nav__link">
-    Annotations with FIJI
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#convert-annotations-to-images" title="Convert annotations to images" class="md-nav__link">
-    Convert annotations to images
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#defining-a-root-folder" title="Defining a root folder" class="md-nav__link">
-    Defining a root folder
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -517,100 +630,8 @@
               
                 
                 
-                <h1 id="image-annotation">Image annotation<a class="headerlink" href="#image-annotation" title="Permanent link">&para;</a></h1>
-<p>In this step, the structures of interest, e.g. cell and nuclei, are outline in
-the images to generate data that will be used to train the neural network.</p>
-<p>For the moment, we support annotations f</p>
-<ul>
-<li>Annotations stored in <a href="http://geojson.org/">GeoJson</a> format. We provide a dedicated ImJoy plugin to generate these.</li>
-<li>Annotations from <a href="https://fiji.sc/"><strong>FIJI</strong></a>.</li>
-</ul>
-<p>Using annotations in other formats is in principle possible but
-will require the implementation of dedicated wrappers.</p>
-<h2 id="annotations-in-geojson-with-imjoy">Annotations in GeoJson with ImJoy<a class="headerlink" href="#annotations-in-geojson-with-imjoy" title="Permanent link">&para;</a></h2>
-<p>ImJoy provides a dedicated plugin to perform annotations</p>
-<h2 id="annotations-with-fiji">Annotations with FIJI<a class="headerlink" href="#annotations-with-fiji" title="Permanent link">&para;</a></h2>
-<p>FIJI allows to annotate images, and save the annotations into a separate file.</p>
-<p><img alt="AnnotationWithFIJI" src="../img/segment-fiji-annotation.png" /></p>
-<ol>
-<li>Open FIJI</li>
-<li>Open the <strong>ROI manager</strong>: <code>Analyze</code> &gt; <code>Tools</code> &gt; <code>ROI manager</code></li>
-<li>Open image that you will annotate.</li>
-<li>Select the annotation tool of choice, e.g. freehand or polygon.</li>
-<li>Outline first structure of interest. When done, press <code>Add(t)</code> in ROI manager to
-    add outline.</li>
-<li>Proceed with all other structures. Enabling "Show all", will show all defined regions.</li>
-<li>
-<p>Save regions by highlighting all regions in the list and pressing on <code>More</code> &gt; <code>Save ...</code></p>
-<ul>
-<li>If only one region is saved, this will created a file with the extension <code>.roi</code>.</li>
-<li>If multiple annotations are saved this will create a <code>.zip</code> file.</li>
-<li>As a file-name choose the name of the annotated image, followed by a
-suffix such as <strong><code>_RoiSet.zip</code></strong>. If you have different structures
-(e.g. nuclei and cells), choose the suffix accordingly, e.g.
-<code>_cells_RoiSet.zip</code> and <code>_nuclei_RoiSet.zip</code>.</li>
-</ul>
-</li>
-</ol>
-<p><strong>IMPORTANT</strong>: all structures, e.g. nuclei, have to be annotated. Unwanted elements,
-e.g. nuclei touching the cell border, can be removed in a post-processing step.</p>
-<h2 id="convert-annotations-to-images">Convert annotations to images<a class="headerlink" href="#convert-annotations-to-images" title="Permanent link">&para;</a></h2>
-<p>Once you have annotated the images, you have to convert these annotations to images which
-can be used as an input for the A-net. We provide a dedicated ImJoy
-plugin to perform this task. This plugin has different <strong>tags</strong>, which render the plugin
- for a given segmentation tasks. You only have to specify a few key properties of your data.</p>
-<p>The screenshot shown below shows the plugin interface for the segmentation of the
-cell membrane in the example data. Note that here is only one channel.</p>
-<p><img alt="PluginInterfaceCellCortex" src="/img/segment-param-cellcortex.png" /></p>
-<p>For the example above, you have to specify</p>
-<ol>
-<li>Unique identifier for each channel (here there is only one channel with the identifier <code>C3-</code>)</li>
-<li>File extension of your images (<code>.tif</code> in this case)</li>
-<li>File extension of the annotations (FIJI annotations with <code>_RoiSet.zip</code>)</li>
-</ol>
-<p>Once you specified these parameters you can convert an entire folder with annotations
-by pressing on the plugin itself (the blue text <code>AnnotationImporter</code>). You will be
-asked to specify the parent folder containing the different data-sets.</p>
-<p>The plugin will open all annotation files, create the necessary mask images, and
-save them together with the corresponding images in a new folder <code>unet_data</code> in
-the processed folder. It contains two subfolders <strong>train</strong> and <strong>valid</strong>. Here,
-a dedicated folder with the name of the image is created. The actual images are
-then named with the channel identifier (e.g. <code>cells</code>) and the image masks with
-the channel identifier followed by the mask type (e.g. <code>cell_mask_edge.png</code>).</p>
-<div class="highlight"><pre><span></span>.
-├─ anet/
-│  ├─ train/
-│  │  ├─ C3-img4
-│  │  │  ├─ cells.png
-│  │  │  ├─ mask_edge.png
-│  │  ├─ C3-img5
-│  │  │  ├─ cells.png
-│  │  │  ├─ mask_edge.png
-│  │  ...
-│  ├─ valid/
-│  │  ├─ C3-img1
-│  │  │  ├─ cells.png
-│  │  │  ├─ mask_edge.png
-│  │  ├─ C3-img2
-│  │  │  ├─ cells.png
-│  │  │  ├─ mask_edge.png
-│  │   ...
-├─ test/
-│  ...
-├─ train/
-│  ...
-├─ valid/
-│  ...
-</pre></div>
-
-<p>This directory can be used as an input directory for the training.</p>
-<p><strong>NEEDED?</strong> It will also create a <code>.zip</code> file that can be easily distributed.</p>
-<h3 id="defining-a-root-folder">Defining a root folder<a class="headerlink" href="#defining-a-root-folder" title="Permanent link">&para;</a></h3>
-<p>By default, ImJoy will open files in your home folder. If your data is at a different
-location, you can set a root folder. Each time you specify a file, ImJoy will open
-the file-dialog in this root folder. Press the button <code>Root folder</code> and specify the
-desired folder. The specified root folder is also saved, and will be resused the next time you launch
-ImJoy.</p>
+                <h1 id="faq">FAQ<a class="headerlink" href="#faq" title="Permanent link">&para;</a></h1>
+<h2 id="all-good">All good?<a class="headerlink" href="#all-good" title="Permanent link">&para;</a></h2>
                 
                   
                 
@@ -627,6 +648,41 @@ ImJoy.</p>
       
         
 <footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../prediction/" title="Prediction" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Prediction
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../release-notes/" title="Release Notes" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Release Notes
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
