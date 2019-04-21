@@ -31,14 +31,12 @@ import base64
 from io import BytesIO
 from PIL import Image
 import os
-
 import sys
+
 #import importlib  # to reload
 #sys.path.append('D:\code_git\ImJoy_developments\img-segment\imgseg')
+from imgseg import annotationUtils
 
-import annotationUtils
-
-#importlib.reload(annotationUtils)
 
 
 class ImJoyPlugin():
@@ -47,7 +45,7 @@ class ImJoyPlugin():
 
     # Create masks
     async def create_masks(self,data, label=None):
-       
+
         # Instance to save masks
         annotationsImporter = annotationUtils.GeojsonImporter()
         masks = annotationUtils.MaskGenerator()
@@ -67,7 +65,7 @@ class ImJoyPlugin():
     
         # Ask for files/folders
         try: 
-            path_open = await api.showFileDialog(root=root)
+            path_open = await api.showFileDialog(root="~")
         except:
             return
 
