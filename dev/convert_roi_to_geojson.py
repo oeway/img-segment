@@ -65,7 +65,6 @@ for file_proc in files_proc:
     folder_save = os.path.join(drive,path,'_anet',subfolder)
     create_folder(folder_save)
 
-
     # Open ROI file
     roi_dict_complete = read_roi_zip(file_proc)
 

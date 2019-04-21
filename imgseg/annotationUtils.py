@@ -145,7 +145,7 @@ class GeojsonImporter(AnnotationImporter):
                  annot_dict[key_annot]['pos'][:, 0].min(),
                  annot_dict[key_annot]['pos'][:, 1].max()
                  - annot_dict[key_annot]['pos'][:, 1].min()])
-        print('skipped gemetry type(s):', skipped)
+        print('Skipped geometry type(s):', skipped)
         return annot_dict, roi_size_all,self.image_size
 
 

@@ -15,6 +15,8 @@ from scipy import ndimage
 from scipy import signal
 from scipy.misc import imsave
 
+import palettable   # pip install palettable
+
 # IMPORTS to create polygons from segmentation masks
 
 from shapely.geometry import Polygon as shapely_polygon  # Used to simplify the mask polygons
@@ -101,7 +103,6 @@ def segment_cells_nuclei(image_input, image_output, h_threshold=15, min_size_cel
     
     if save_path:
 
-        import palettable
         from skimage.color import label2rgb
         
         imsave(save_path + '_cells_mask.png',
@@ -178,7 +179,7 @@ def segment_nuclei_cellcog(im, h_threshold=15, bg_window_size=100, min_size=1000
 
 
 
-def masks_to_polygon(img_mask,simplify_tol=0, plot_simplify=False, save_name=None):
+def masks_to_polygon(img_mask,label=None,features=[],simplify_tol=0, plot_simplify=False, save_name=None):
     ''' 
     Find contours with skimage, simplify them (optional), store as geojson:
         
@@ -211,7 +212,6 @@ def masks_to_polygon(img_mask,simplify_tol=0, plot_simplify=False, save_name=Non
     
     # Prepare list to store polygon coordinates and geojson features
     contours = []
-    features = []   # For geojson
     
     Ncells = img_mask.max()   
     # Loop over all masks (except with index 0 which is background)
@@ -244,21 +244,21 @@ def masks_to_polygon(img_mask,simplify_tol=0, plot_simplify=False, save_name=Non
             
             # Create and append feature for geojson
             pol_loop = geojson_polygon(contour_asList)
-            features.append(Feature(geometry=pol_loop))
+            features.append(Feature(geometry=pol_loop,properties= {"label":label}))
                 
-        else:
-            print(f'More than one / or no contour found for object {obj_int}')
-    
-    # Create geojson feature collection
-    feature_collection = FeatureCollection(features)
-    
+        #elif len(contour) == 0:
+        #    print(f'No contour found for object {obj_int}')
+        #else:
+        #    print(f'More than one contour found for object {obj_int}')
+
     # Save to json file
     if save_name:
+        feature_collection = FeatureCollection(features)
         with open(save_name, 'w') as f:
             dump(feature_collection, f)
             f.close()
 
-    return contours, feature_collection
+    return features, contours
 
 
 
