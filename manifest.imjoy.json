@@ -1,0 +1,19 @@
+{
+ "version": "0.1.0",
+ "uri_root": "https://gitlab.pasteur.fr/fmueller/imjoy-segmentation/imjoyPlugins",
+ "plugins": [
+  {
+   "name": "3D Demos",
+   "mode": "window",
+   "tags": [],
+   "ui": "Demo: {id: 'demo', type:'choose', options: ['Sponza', 'Volume(vtk.js)'], placeholder: 'Volume(vtk.js)'}",
+   "version": "0.1.0",
+   "api_version": "0.1.1",
+   "description": "A set of demo plugins of webGL 3D.",
+   "icon": "extension",
+   "inputs": null,
+   "outputs": null,
+   "dependencies": [],
+   "uri": "AnnotationImporter.imjoy.html"
+  }]
+}

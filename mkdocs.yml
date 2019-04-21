@@ -1,0 +1,71 @@
+# Project information
+site_name: Cell segmentation with ImJoy
+site_description: ImJoy tools for cell segmentation
+site_author: Florian Mueller, Wei Ouyang
+site_url: https://github.com/muellerflorian/img-segment
+
+# Repository
+repo_name: GitHub
+repo_url: https://github.com/muellerflorian/img-segment
+edit_uri: ""
+
+# Copyright
+copyright: 'Copyright &copy; 2019 Mueller Florian'
+
+# Configuration
+theme:
+  name: 'material'
+  #name: mkdocs
+  # 404 page
+  static_templates:
+    - 404.html
+
+  # Don't include MkDocs' JavaScript
+  include_search_page: false
+  search_index_only: true
+
+  # Default values, taken from mkdocs_theme.yml
+  language: en
+  feature:
+    tabs: true
+  palette:
+    primary: indigo
+    accent: indigo
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: /img/icons8-eukaryotic-cells-filled-100.png
+  logo:
+    icon: wb_sunny
+
+# Customization
+extra:
+  social:
+    - type: github-alt
+      link: https://github.com/muellerflorian/
+
+# MD extension
+markdown_extensions:
+  - toc:
+      permalink: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.tasklist
+  - pymdownx.superfences
+  - pymdownx.tilde
+
+nav:
+    - Overview:
+      - Summary: index.md
+      - Data organization: data-organization.md
+    - Training:
+      - Projection: projection.md
+      - Annotations: annotation.md
+      - Segmentation: cell-segmentation.md
+    - About:
+      - Release Notes: release-notes.md
+      - Licence: licence.md
+
+
+#theme:
+#  name: 'material'

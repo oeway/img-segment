@@ -1,0 +1,282 @@
+﻿<docs>
+
+# Acknowledgement 
+* CSS style: spectre.css
+* Full page tabs: https://plnkr.co/edit/z45r86J0VfpWMhII5CKu?p=preview
+* Menu that folds: https://tutorialzine.com/2015/08/quick-tip-css-only-dropdowns-with-the-checkbox-hack
+</docs>
+
+<config lang="json">
+{
+  "name": "Mask Generator",
+  "type": "window",
+  "tags": [],
+  "ui": "",
+  "version": "0.1.0",
+  "api_version": "0.1.2",
+  "description": "[TODO: describe this plugin with one sentence.]",
+  "icon": "extension",
+  "inputs": null,
+  "outputs": null,
+  "env": "",
+  "requirements": [
+         "https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.22/vue.min.js",
+        "https://unpkg.com/spectre.css/dist/spectre.min.css",
+        "https://unpkg.com/spectre.css/dist/spectre-exp.min.css",
+        "https://unpkg.com/spectre.css/dist/spectre-icons.min.css"],
+  "dependencies":"https://raw.githubusercontent.com/muellerflorian/img-segment/master/imjoy-plugins/SegmentationTools.imjoy.html",
+  "defaults": {"w": 40, "h": 30}
+}
+</config>
+
+<script lang="javascript">
+
+class ImJoyPlugin {
+
+  async setup() {
+  
+    // For vue
+    this.store = {
+      annotations: [],
+      annot_name: [],
+      annot_masks:[],
+      annot_file_name:'annotation.json',
+      search_recursive : false
+    };
+
+    this.app = new Vue({
+      el: '#app',
+      template: await api.getAttachment('app_template'),
+      data: this.store,
+      methods: {
+
+        // Mask generator: remove annotations  
+        remove_annotation: function(annot) {
+          console.log(this)
+          this.annotations.splice(this.annotations.indexOf(annot), 1);
+        },
+
+        // Mask generator: add annotations  
+        add_annotation: function() {
+          console.log(this)
+           this.annotations.push({
+                name: this.annot_name,
+                masks: this.annot_masks
+                })
+        },
+
+        //Create masks
+        create_masks: async function() {
+           await api.call(
+                    "SegmentationTools", "create_masks", 
+                    {   
+                        'annotations': this.annotations,
+                        'search_recursive': this.search_recursive,
+                        'annot_file_name': this.annot_file_name
+                    }
+            )
+        }
+      }
+    })
+  }
+
+  // Mask generator: add channel
+  // Function can eventually be removed. Currently serves to populate table
+  async addAnnotation(config) {
+    this.store.annotations.push(config)
+    this.app.$forceUpdate()
+  }
+
+  // Set root folder
+  async set_root(root_folder) {
+    console.log(root_folder)
+    this.store.root_folder = root_folder
+  }
+
+
+  async run(my) {
+    console.log('running in the plugin ', my)
+
+    // Add some test annotations
+    this.addAnnotation({
+      name: 'cells',
+      masks: ['edge', 'distance']
+    })
+    this.addAnnotation({
+      name: 'nuclei',
+      masks: ['filled']
+    })
+  }
+
+}
+
+api.export(new ImJoyPlugin()) 
+</script>
+
+<attachment name="app_template">
+  <div>
+
+    <br>
+    <h3> Create annotation-type-specific masks for image segmentation </h3>
+    <br>
+
+
+    <!-- Card to specify masks -->
+    <div class="card">
+
+      <div class="card-header">
+        <div class="card-title h5">Define mask types</div>
+        <div class="card-subtitle text-gray">Specify for each annotion type which image masks should be generated. </div>
+      </div>
+
+      <div class="card-body">
+
+        <!-- Mask generator: form to create add a new channel -->
+        <form class="form-horizontal">
+          <div class="form-group">
+
+            <!-- Add button name -->
+            <div class="col-1 col-sm-12">
+              <button class="btn btn-action btn-primary btn-lg s-circle" @click="add_annotation"><i class="icon icon-plus"></i></button>
+            </div>
+
+            <!-- Channel name -->
+            <div class="col-3 col-sm-12">
+              <div class="input-group">
+                <span class="input-group-addon">Annotation</span>
+                <input type="text" class="form-input" placeholder="Name of annotation" v-model="annot_name">
+              </div>
+            </div>
+
+            <!-- Which masks -->
+            <div class="accordion">
+              <input type="checkbox" id="accordion-1" name="accordion-checkbox" hidden>
+              <label class="accordion-header" for="accordion-1">
+                <i class="icon icon-arrow-right mr-1"></i>
+                Select mask type(s)
+              </label>
+              <div class="accordion-body">
+                <ul class="menu">
+                  <!-- Filled mask-->
+                  <li class="menu-item">
+                    <label class="form-checkbox">
+                      <input type="checkbox" id="filledmask" value="filled" v-model="annot_masks">
+                      <i class="form-icon"></i> Filled mask
+                    </label>
+                  </li>
+                  <!-- Edge mask-->
+                  <li class="menu-item">
+                    <label class="form-checkbox">
+                      <input type="checkbox" id="edgemask" value="edge" v-model="annot_masks">
+                      <i class="form-icon"></i> Edge mask
+                    </label>
+                  </li>
+                  <!-- Distance map-->
+                  <li class="menu-item">
+                    <label class="form-checkbox">
+                      <input type="checkbox" id="distancemap" value="distance" v-model="annot_masks">
+                      <i class="form-icon"></i> Distance map
+                    </label>
+                  </li>
+                  <!-- Weighted edge-->
+                  <li class="menu-item">
+                    <label class="form-checkbox">
+                      <input type="checkbox" id="weightedmask" value="weigthed" v-model="annot_masks">
+                      <i class="form-icon"></i> Weighted edge
+                    </label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </form>
+        <!-- Mask generator: end of form to create add a new channel -->
+
+
+        <!-- Mask generator: table containing masks to be created -->
+        <div style="text-align: center;">
+
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Annotation name</th>
+                <th>Mask type(s)</th>
+                <th>Remove?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="annot in annotations" :key="annot.name">
+                <td>{{annot.name}}</td>
+                <td>
+                  <span v-for="m in annot.masks" :key="m">{{m}}, </span>
+                </td>
+                <td>
+                  <button class="btn btn-primary action btn-lg s-circle" @click="remove_annotation(annot)"><i class="icon icon-delete"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+        <!-- Mask generator: end of table containing masks to be created -->
+
+      </div>
+    </div>
+    <!-- End of card to specify masks -->
+
+
+    <!-- Card to generate masks -->
+    <div class="card">
+
+      <div class="card-header">
+        <div class="card-title h5">Create masks</div>
+        <div class="card-subtitle text-gray">Select outlines to be processed and generate masks. </div>
+      </div>
+
+      <div class="card-body">
+
+      <!-- Mask generator: form to specify mask type and image extensions -->
+        <form class="form-horizontal">
+          <div class="form-group">
+
+            <!-- Annotation extension -->
+            <div class="col-5 col-sm-12">
+              <div class="input-group">
+                <span class="input-group-addon">Name of geojson file with annotations</span>
+                <input type="text" class="form-input"  v-model="annot_file_name">
+              </div>
+            </div>
+
+          </div>
+        </form>
+        <!-- Mask generator: end of form to specify mask type and image extensions  -->
+
+        <!-- Add button name -->
+        <button class="btn btn-primary" @click="create_masks">Select files or folder and create masks</i></button>
+
+        <label class="form-checkbox">
+            <input type="checkbox" id="searchRecursive" v-model="search_recursive">
+            <i class="form-icon"></i> Recursively search directories
+       </label>
+
+
+
+
+      </div>
+    </div>
+    <!-- End of card to generate masks -->
+
+
+
+  </div>
+</attachment>
+
+
+<window lang="html">
+    <div id="app"> </div>
+</window>
+
+
+<style lang="css">
+
+</style>
