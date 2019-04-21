@@ -12,3 +12,11 @@ and its [**A-net plugin**](), but can also be outside of this scope.
 
 For a more detailed description for how to use these tools in the context of
 cell segmentation, we refer to the [**A-net documentation])().
+
+
+
+## For the MkDocs
+
+* Launch dev-server: `mkdocs serve`
+* Building the site: `mkdocs build`
+* Deploy to GitHub pages: `mkdocs gh-deploy --clean --force`

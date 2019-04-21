@@ -57,11 +57,16 @@ markdown_extensions:
 nav:
     - Overview:
       - Summary: index.md
-      - Data organization: data-organization.md
     - Training:
-      - Projection: projection.md
+      - Data organization: data-organization.md
+      - 2D projection: projection.md
       - Annotations: annotation.md
       - Segmentation: cell-segmentation.md
+    - Prediction:
+      - Prediction: prediction.md
+    - FAQ:
+      - FAQ: FAQ.md
+
     - About:
       - Release Notes: release-notes.md
       - Licence: licence.md

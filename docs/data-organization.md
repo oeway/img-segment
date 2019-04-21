@@ -1,49 +1,38 @@
-# Data organisation
-
-Here we describe how the data has to be organised to perform either prediction
-or training.
-
-## Prediction
-
-## Training
+# Data organization
 
 To perform training, you have to provide both the input images as well as target
-images (the masks created from your annotations). These data have to be organised
-according to following guidelines, resulting in an organisation as shown below.
-
-    ├─ data_for_training/
-    │  ├─ train/
-    │  │  ├─ img1
-    │  │  │  ├─ cells.png
-    │  │  │  ├─ cells_mask_edge.png
-    │  │  │  ├─ nuclei.png
-    │  │  │  ├─ nuclei_mask_full.png
-    │  │  ├─ img2
-    │  │  │  ├─ cells.png
-    │  │  │  ├─ cells_mask_edge.png
-    │  │  │  ├─ nuclei.png
-    │  │  │  ├─ nuclei_mask_full.png
-    │  │  ...
-    │  ├─ valid/
-    │  │  ├─ img57
-    │  │  │  ├─ cells.png
-    │  │  │  ├─ cells_mask_edge.png
-    │  │  │  ├─ nuclei.png
-    │  │  │  ├─ nuclei_mask_full.png
-    │  │  ├─ img58
-    │  │  │  ├─ cells.png
-    │  │  │  ├─ cells_mask_edge.png
-    │  │  │  ├─ nuclei.png
-    │  │  │  ├─ nuclei_mask_full.png
-    │  │   ...
+images (the masks created from your annotations). These data have to be organized
+according to following guidelines. Note that this strict organization is ONLY needed for training,
+for prediction, data can be organized more freely.
 
 1.  Data has to be stored in two folders **train**, **valid**.
     The `train` folder will be used to train the neural network, the `valid` folder
     to continuously monitor how well the training worked. Both folders have to contain
     images and annotations.
-2.  Each image is stored in a separate subfolder with a unique name. Across these folders,
-    input and mask images have always the same name. If you use the provided ImJoy
-    plugin to create masks, this will be automatically created for you.
+2.  Sub-folders then stored different field of views. Images can be stored either
+    as multi-channel or mono-channel, but they must have the same name across
+
+In an example, this could look like the organization shown below. For each
+
+```
+    ├─ data_for_training/
+    │  ├─ train/
+    │  │  ├─ img1
+    │  │  │  ├─ cells.png
+    │  │  │  ├─ nuclei.png
+    │  │  ├─ img2
+    │  │  │  ├─ cells.png
+    │  │  │  ├─ nuclei.png
+    │  │  ...
+    │  ├─ valid/
+    │  │  ├─ img57
+    │  │  │  ├─ cells.png
+    │  │  │  ├─ nuclei.png
+    │  │  ├─ img58
+    │  │  │  ├─ cells.png
+    │  │  │  ├─ nuclei.png
+    │  │   ...
+```
 
 ## How many cells for training an validation?
 There is no simple rule for how many images / annotated cells or nuclei you will need
