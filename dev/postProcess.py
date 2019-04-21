@@ -29,7 +29,7 @@ min_size_nuclei = 100  # 1000; minimum size of the nuclei
 simplify_tol = 1     # Tolerance for polygon simplification with shapely (0 to not simplify)
 
 if os.path.exists(outputs_dir):
-    for file in [f for f in os.listdir(outputs_dir) if '-outputs.png' in f]:
+    for file in [f for f in os.listdir(outputs_dir) if '_outputs.png' in f]:
         file = os.path.join(outputs_dir, file)
         
         # Read png with input and output

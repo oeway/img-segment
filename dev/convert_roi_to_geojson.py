@@ -1,3 +1,6 @@
+# Intended as a one time conversion of FiJi annotations to ImJoy's annotation
+#  format. 
+
 #%% Import modules
 import os
 import shutil
@@ -6,7 +9,7 @@ from read_roi import read_roi_zip  # https://github.com/hadim/read-roi
 from geojson import Polygon as geojson_polygon
 from geojson import Feature, FeatureCollection, dump  # Used to create and save the geojson files: pip install geojson
 
-# Create folders                                       
+# Create folders
 def create_folder(folder_new):
     if not os.path.isdir(folder_new):
         os.makedirs(folder_new)
@@ -27,9 +30,9 @@ for iter, dic in enumerate(channels):
     channels_new[dic["identifier"]] = {}
     channels_new[dic["identifier"]]['name'] = dic["name"]
 
-channel_ident = list(channels_new.keys())  
+channel_ident = list(channels_new.keys())
 
-                                   
+
 #%% Recursive search to find all files
 files_proc = []
 
@@ -41,7 +44,7 @@ for root, dirnames, filenames in os.walk(path_open):
 
 #%% Loop over all files
 for file_proc in files_proc:
-    
+
     print(f'PROCESSING FILE: {file_proc}')
 
     # Decompose file name
@@ -65,24 +68,24 @@ for file_proc in files_proc:
 
     # Open ROI file
     roi_dict_complete = read_roi_zip(file_proc)
-    
+
     # Simplify dictionary & get size of annotations
     annot_dict = {}
     roi_size_all = []
     features = []   # For geojson
-    
+
     for key_roi, val_roi in roi_dict_complete.items():
-    
+
         # Get coordinates - maybe x and y have to be exchanged
         pos = np.column_stack((val_roi['y'], val_roi['x']))
-        
+
         # Create and append feature for geojson
         pol_loop = geojson_polygon(pos.tolist())
         features.append(Feature(geometry=pol_loop,properties= {"label": channels_new[file_ch]['name']})) #,  properties={"country": "Spain"}) #)
-        
+
     # Create geojson feature collection
     feature_collection = FeatureCollection(features,bbox = [0, 0.0, image_size[0], image_size[1]])
-        
+
     # Save to json file
     save_name_json = os.path.join(folder_save, channels_new[file_ch]['name'] + '_annotation.json')
     with open(save_name_json, 'w') as f:
@@ -96,29 +99,6 @@ for file_proc in files_proc:
         img_raw_new = os.path.join(folder_save, channels_new[file_ch]['name']+img_ext)
         shutil.copy(img_raw, img_raw_new)
         print(f'Copying raw image: {img_raw}')
-        
+
     else:
         print(f'Raw image does not exist: {img_raw}')
-        
-        
-        
-#%% ***************************************************************************** 
-#  Generate all possible masks
-        
-import sys
-sys.path.insert(0,'/Volumes/PILON_HD2/fmueller/Documents/code/ImJoy_dev/img-segment/imgseg')
-import annotationUtils
-import importlib  # to reload: importlib.reload(AnnotationImporter        
-        
-
-#%% Create masks        
-importlib.reload(annotationUtils)
-
-annotationUtils.proc_files(path_open = '/Volumes/PILON_HD2/fmueller/Documents/Data/ImJoy/segmentation/CellMask/json',
-                           channels =  [{'name': 'cells', 'identifier': 'cells', 'masks': ['edge', 'distance','filled','weigthed']},
-                                         {'name': 'nuclei', 'identifier': 'nuclei', 'masks': ['edge', 'distance','filled','weigthed']}] ,
-                           annot_type = 'geojson',
-                           annot_ext = '_annotation.json',
-                           search_recursive = True,
-                           log_fun=None,
-                           save_type = 'suffix')

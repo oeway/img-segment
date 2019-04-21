@@ -1,9 +1,3 @@
-# CAN BE SIMPLIFIED. 
-#  + INFORMATION ABOUT THE MASK TYPE IS STORED AS A PROPERTY OF THE GEJSON 
-#       properties= {"label": ...)
-#  + INFORMATION ABOUT THE IMAGE SIZE IS STORED AS INFO IN THE GEOSON
-#     bbox = [0, 0.0, image_size[0], image_size[1]]
-
 
 # ---------------------------------------------------------------------------
 # Imports
@@ -14,7 +8,6 @@
 import numpy as np
 import os
 import sys
-import shutil
 
 # Read annotations
 from read_roi import read_roi_zip  # https://github.com/hadim/read-roi
@@ -79,197 +72,6 @@ def print_progress(iteration, total, prefix='', suffix='', decimals=1, bar_lengt
     sys.stdout.flush()
 
 
-def log_statuts(log_fun,message):
-    '''
-    Log a status message. If no log_fun is specified (e.g. from ImJoy) uses
-    print to console.
-    '''
-    if log_fun:
-        log_fun(message)
-    else:
-        print(message)
-
-# ---------------------------------------------------------------------------
-# Function to create annotation masks
-# ---------------------------------------------------------------------------
-
-
-def proc_files(path_open,channels,annot_type,annot_ext,search_recursive = False,image_size = (2048,2048),save_type = 'subfolder',log_fun=None,img_ext='.tif'):
-    '''
-    Read annotations from file or folder and create masks.
-
-    Args:
-        path_open (string): file-name of annotation or folder to be searched for annotations
-        save_type (string): determines how masks are saved. 
-                                'subfolder' creates for each image a subfolder with 
-                                        the same name where the masks are saved. Masks and input images 
-                                        will have the same name for different files 
-                                        Channel identifier is REMOVED from the subfolder name. 
-                                        This allows to combine images with different channels.
-                                'suffix'  will save the masks in the same folder as the 
-                                        actual annotations and will add a mask specific suffix.
-       img_ext (string): file extension of raw images, will be used to copy these images 
-                         when the option 'subfolder' was selected. 
-    Returns:
-            annot_dict (dictionary): contains all annotated elements
-            roi_size_all (list): contains size of each annotated element
-    '''
-
-
-    # Assemble list with all files to be processed
-    files_proc = []
-
-    if os.path.isfile(path_open):
-        log_statuts(log_fun,'Will processe ONE file:')
-        files_proc.append(path_open)
-
-    else:
-
-        if search_recursive == True:
-            log_statuts(log_fun,'Search DIRECTORY recursively:')
-            # Recursive search of specified directory
-            for root, dirnames, filenames in os.walk(path_open):
-                for filename in filenames:
-                    if filename.endswith(annot_ext):
-                        files_proc.append(os.path.join(root, filename))
-
-        else:
-            # Only search current directory
-            log_statuts(log_fun,'Search current directory')
-            filenames = os.listdir(path_open)
-            for filename in filenames:
-                if filename.endswith(annot_ext):
-                    files_proc.append(os.path.join(path_open, filename))
-
-    log_statuts(log_fun,files_proc)
-
-    # Instances to import annotations
-
-    if annot_type == 'fiji':
-        annotationsImporter = FijiImporter()
-        
-    elif annot_type == 'geojson':
-        annotationsImporter = GeojsonImporter()
-
-    # Instance to save masks
-    masks = MaskGenerator()
-
-    # Instances to to create masks
-    binaryMasks       = BinaryMaskGenerator(image_size = (2048,2048), erose_size=5, obj_size_rem=500, save_indiv=True)
-    weightedEdgeMasks = WeightedEdgeMaskGenerator(sigma=8, w0=10)
-    distMapMasks      = DistanceMapGenerator(truncate_distance=None)
-
-    # Create new channel dictionary: key for each entry is the channel identifier
-    channels_new = {}
-    for iter, dic in enumerate(channels):
-        channels_new[dic["identifier"]] = {}
-
-        channels_new[dic["identifier"]]['name'] = dic["name"]
-        channels_new[dic["identifier"]]['masks'] = dic["masks"]
-
-    channel_ident = list(channels_new.keys())
-
-    # Loop over all files
-    for file_proc in files_proc:
-        
-        log_statuts(log_fun,'PROCESSING FILE:')
-        log_statuts(log_fun,file_proc)
-
-        # Decompose file name
-        drive, path_and_file = os.path.splitdrive(file_proc)
-        path, file = os.path.split(path_and_file)
-        file_base = file.replace(annot_ext,'')
-        #file_base, ext = os.path.splitext(file)
-
-        # Check which channel this is
-        #  [ToDo]: Not perfect since it returns the first hit.
-        file_ch = next((substring for substring in channel_ident if substring in file_base), None)
-
-        if not file_ch:
-            log_statuts(log_fun,f'No channel identifier found in file name {file_base}')
-            continue
-
-        log_statuts(log_fun,f'Mask type identified: {file_ch}')
-
-        # Create folders to save mask
-        if save_type is 'subfolder':
-            
-            
-            # Create sub-folder and remove channel identifier
-            subfolder = file_base.replace(file_ch, "")
-            folder_save = os.path.join(drive,path,'_masks',subfolder)
-            create_folder(folder_save)
-
-            # Find and copy raw data renamed with channel identifier
-            img_raw = os.path.join(drive,path,file_base+img_ext)
-            if os.path.isfile(img_raw):
-                img_raw_new = os.path.join(folder_save, channels_new[file_ch]['name']+img_ext)
-                shutil.copy(img_raw, img_raw_new)
-                log_statuts(log_fun,f'Copying raw image: {img_raw}')
-                
-            else:
-                log_statuts(log_fun,f'Raw image does not exist: {img_raw}')
-            
-        elif save_type is 'suffix':
-            folder_save = os.path.join(drive,path)
-            
-        # Read annotation:  Correct class has been selected based on annot_type
-        annot_dict, roi_size_all = annotationsImporter.load(file_proc)
-
-        # Binary - is always necessary to creat other masks
-        log_statuts(log_fun,' .... creating binary masks .....')
-        mask_dict = binaryMasks.generate(annot_dict)
-
-
-  
-
-        # Save binary masks FILLED if specified
-        if 'filled' in channels_new[file_ch]['masks']:
-
-            if save_type is 'subfolder':
-                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__MASK_fill.png')
-            elif save_type is 'suffix':    
-                file_name_save = os.path.join(folder_save, file_base + '__mask_fill.png')
-                      
-            masks.save(mask_dict,'fill',file_name_save)
-
-        # Edge mask
-        if 'edge' in channels_new[file_ch]['masks']:
-            
-            if save_type is 'subfolder':
-                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__mask_edge.png')
-            elif save_type is 'suffix':    
-                file_name_save = os.path.join(drive,path, file_base + '__mask_edge.png')
-            
-            masks.save(mask_dict,'edge',file_name_save)
-
-        # Distance map
-        if 'distance' in channels_new[file_ch]['masks']:
-            log_statuts(log_fun,' .... creating distance maps .....')
-            mask_dict    = distMapMasks.generate(annot_dict,mask_dict)
-
-            # Save
-            if save_type is 'subfolder':
-                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__mask_distMap.png')
-            elif save_type is 'suffix':    
-                file_name_save = os.path.join(drive,path, file_base + '__mask_distMap.png')            
-        
-            masks.save(mask_dict,'distance_map',file_name_save)
-        
-
-        # Weighted edge mask
-        if 'weigthed' in channels_new[file_ch]['masks']:
-            log_statuts(log_fun,' .... creating weighted edge masks .....')
-            mask_dict = weightedEdgeMasks.generate(annot_dict,mask_dict)
-
-            # Save
-            if save_type is 'subfolder':
-                file_name_save = os.path.join(folder_save, channels_new[file_ch]['name'] + '__mask_edgeWeight.png')
-            elif save_type is 'suffix':    
-                file_name_save = os.path.join(drive,path, file_base + '__mask_edgeWeight.png')
-                
-            masks.save(mask_dict,'edge_weighted',file_name_save)
-
 # ---------------------------------------------------------------------------
 # Classes to import annotations
 # ---------------------------------------------------------------------------
@@ -314,24 +116,28 @@ class GeojsonImporter(AnnotationImporter):
         with open(file_open, encoding='utf-8-sig') as fh:
             data_json = json.load(fh)
 
+
         # Overwrite default file size if bounding box is present
         if 'bbox' in data_json:
-            self.image_size = (int(data_json['bbox'][2]-data_json['bbox'][0]),
-                               int(data_json['bbox'][3]-data_json['bbox'][1]))
+            self.image_size = (int(data_json['bbox'][2]-data_json['bbox'][0]+1),
+                               int(data_json['bbox'][3]-data_json['bbox'][1]+1))
 
 
         # Loop over list and create simple dictionary & get size of annotations
         annot_dict = {}
         roi_size_all = []
 
+        skipped = []
         for feat_idx, feat in enumerate(data_json['features']):
-            #print(feat['geometry']['type'])
             #print()
-
+            if feat['geometry']['type'] not in ['Polygon', 'LineString']:
+                skipped.append(feat['geometry']['type'])
+                continue
             key_annot = 'annot_'+str(feat_idx)
             annot_dict[key_annot] = {}
             annot_dict[key_annot]['type'] = feat['geometry']['type']
             annot_dict[key_annot]['pos'] = np.squeeze(np.asarray(feat['geometry']['coordinates']))
+            annot_dict[key_annot]['properties'] = feat['properties']
 
             # Store size of regions
             roi_size_all.append(
@@ -339,65 +145,8 @@ class GeojsonImporter(AnnotationImporter):
                  annot_dict[key_annot]['pos'][:, 0].min(),
                  annot_dict[key_annot]['pos'][:, 1].max()
                  - annot_dict[key_annot]['pos'][:, 1].min()])
-
-        return annot_dict, roi_size_all
-
-
-
-class FijiImporter(AnnotationImporter):
-    ''' Class to import manual annotations from FIJI ROI files. '''
-
-
-    def __init__(self,image_size=(2048,2048)):
-        '''
-        Initiate annotation dictionary.
-
-        Args:
-            image_size (tuple): size of image.
-
-        '''
-        self.image_size   = image_size
-
-
-
-    def load(self, file_open):
-        '''
-        Read folder content based on defined config.
-
-        Args:
-            file_open (string): file-name of annotation.
-
-        Returns:
-            annot_dict (dictionary): contains all annotated elements
-            roi_size_all (list): contains size of each annotated element
-        '''
-
-        # Open ROI file
-        roi_dict_complete = read_roi_zip(file_open)
-
-
-        # Simplify dictionary & get size of annotations
-        annot_dict = {}
-        roi_size_all = []
-
-        for key_roi, val_roi in roi_dict_complete.items():
-
-            # Simplified dictionary: coordinates and annotation type
-            annot_dict[key_roi] = {}
-            annot_dict[key_roi]['pos'] = np.column_stack(
-                (val_roi['y'], val_roi['x']))
-            annot_dict[key_roi]['type'] = val_roi['type']
-
-            # Store size of regions
-            roi_size_all.append(
-                [annot_dict[key_roi]['pos'][:, 0].max() -
-                 annot_dict[key_roi]['pos'][:, 0].min(),
-                 annot_dict[key_roi]['pos'][:, 1].max()
-                 - annot_dict[key_roi]['pos'][:, 1].min()])
-
-
-        return annot_dict, roi_size_all
-
+        print('skipped gemetry type(s):', skipped)
+        return annot_dict, roi_size_all,self.image_size
 
 
 
@@ -446,10 +195,12 @@ class MaskGenerator():
             elif (mask_key is 'edge') or (mask_key is 'fill') :
                 imsave(file_name, 255*mask_save)
 
+
             elif mask_key is 'edge_weighted':
                 mask_rescale = (mask_save - mask_save.min()) * 255 / (mask_save.max()-mask_save.min())
                 mask_rescale = mask_rescale.astype('uint8')
                 imsave(file_name, mask_rescale)
+
 
             else:
                 imsave(file_name, mask_save.astype('float32'))
@@ -501,6 +252,7 @@ class BinaryMaskGenerator(MaskGenerator):
                 (self.image_size[0], self.image_size[1], len(annot_dict)), dtype=np.bool)
 
         # Image used to draw lines - for edge mask for freelines
+        #im_freeline = Image.new('1', self.image_size, color=0)
         im_freeline = Image.new('1', (self.image_size[1],self.image_size[0]), color=0)
         draw = ImageDraw.Draw(im_freeline)
 
@@ -512,7 +264,7 @@ class BinaryMaskGenerator(MaskGenerator):
             # Check region type
 
             # freeline - line
-            if roi['type'] == 'freeline':
+            if roi['type'] == 'freeline' or roi['type'] == 'LineString':
 
                 # Loop over all pairs of points to draw the line
 
@@ -609,7 +361,7 @@ class BinaryMaskGenerator(MaskGenerator):
             mask_dict['fill_indiv'] = np.zeros(self.image_size+(1,), dtype=np.uint8)
 
         else:
-            raise NotImplementedError('No mask has been created.')
+            raise Exception('No mask has been created.')
 
 
         return mask_dict
@@ -702,6 +454,10 @@ class WeightedEdgeMaskGenerator(MaskGenerator):
 
         # Percentage of image being a cell
         ratio = float(x.sum()) / float(x.size - x.sum())
+
+        if ratio == 0:
+            mask_dict['edge_weighted'] = None
+            return
 
         if ratio < 1.0:
             wc = (1 / ratio, 1)
