@@ -28,7 +28,8 @@ outputs_dir = os.path.abspath(os.path.join('..','data','postProcessing','mask2js
 if os.path.exists(outputs_dir):
     
     print(f'Analyzing folder:{outputs_dir}')
-    features = []   # For geojson
+    features_all = []   # For geojson
+    
     for file in [f for f in os.listdir(outputs_dir) if '_filled_output.png' in f]:
         
         # Read png with mask
@@ -42,15 +43,16 @@ if os.path.exists(outputs_dir):
         
         # Call function to transform segmentation masks into (geojson) polygons       
         features,contours  = segmentationUtils.masks_to_polygon(mask_img,
-                                           features = features,
                                            label = label,
                                            simplify_tol=simplify_tol,
                                            plot_simplify=False,
                                            save_name=None)
         
+        features_all = features_all + features
+        
     # Here summarizing the geojson should occur
     image_size = mask_img.shape  # This might cause problems if any kind of binning was performed
-    feature_collection = FeatureCollection(features,bbox = [0, 0.0, image_size[0], image_size[1]])
+    feature_collection = FeatureCollection(features_all,bbox = [0, 0.0, image_size[0], image_size[1]])
 
     # Save to json file
     save_name_json = os.path.join(outputs_dir,'prediction.json')

@@ -15,7 +15,7 @@ sys.path.insert(0,os.path.abspath(os.path.join('..','imgseg')))
 # Test files: on GitHub: img-segment/data/postprocessing/outputs/data/postprocessing/cells_nuclei
 import segmentationUtils
 
-outputs_dir = os.path.abspath(os.path.join('..','data','postProcessing','cells_nuclei'))
+outputs_dir = os.path.abspath(os.path.join('..','data','postProcessing','cells_nuclei_Aubin'))
 
 h_threshold     = 15   # 15; morphological depth for nuclei separation (watershed)
 min_size_cell   = 20   # 200; minimum size of cell
@@ -34,18 +34,17 @@ if os.path.exists(outputs_dir):
         input_png = io.imread(file.replace('outputs.png', 'inputs.png'))
             
         # Create empty arrays to store the relevant channels for postprocessing
-        img_output = np.zeros((output_png.shape[0],output_png.shape[1],2))
+        img_predicted = np.zeros((output_png.shape[0],output_png.shape[1],2))
         img_input  = np.zeros((output_png.shape[0],output_png.shape[1],1))
         
-        img_output[:, :, 0] = output_png[:, :, 0]   # Cell mask
-        img_output[:, :, 1] = output_png[:, :, 2]   # Nuclei mask
+        img_predicted[:, :, 0] = output_png[:, :, 0]   # Cell mask
+        img_predicted[:, :, 1] = output_png[:, :, 2]   # Nuclei mask
         
-        img_output[:, :, 0] = input_png[:, :, 0]    # Image of cell
-        
+        img_input[:, :, 0] = input_png[:, :, 0]    # Image of cell
         
         # Call function to perform segmentation
-        cytoplasm_mask, nuclei_mask = segmentationUtils.segment_cells_nuclei(img_output, 
-                                       img_output,
+        cytoplasm_mask, nuclei_mask = segmentationUtils.segment_cells_nuclei(img_input, 
+                                       img_predicted,
                                        h_threshold=h_threshold, 
                                        min_size_cell=min_size_cell, 
                                        min_size_nuclei=min_size_nuclei, 

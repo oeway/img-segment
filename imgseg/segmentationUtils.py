@@ -73,17 +73,16 @@ def extended_minima(img, h, selem=None):
     return h_min
 
 
-def segment_cells_nuclei(image_input, image_output, h_threshold=15, min_size_cell=200, min_size_nuclei=1000, save_path=None):
+def segment_cells_nuclei(image_input, image_predicted, h_threshold=15, min_size_cell=200, min_size_nuclei=1000, save_path=None):
     ''' Segment cells and nuclei. 
     ARGS
-    image_output ... multichannel image. 1st channel is mask of the cells, 
-       2nd channel mask of the nuclei.
-    
-    image_input  ... image of the cells used for segmentation.
+        image_output ... multichannel image. 1st channel is mask of the cells, 
+                         2nd channel mask of the nuclei.
+       image_input  ... image of the cells used for segmentation.
     '''
     
-    im_mask_cell = image_output[:, :, 0]
-    im_mask_nuc  = image_output[:, :, 1]
+    im_mask_cell = image_predicted[:, :, 0]
+    im_mask_nuc  = image_predicted[:, :, 1]
 
     img_cell = image_input[:, :, 0]
 
@@ -179,7 +178,7 @@ def segment_nuclei_cellcog(im, h_threshold=15, bg_window_size=100, min_size=1000
 
 
 
-def masks_to_polygon(img_mask,label=None,features=[],simplify_tol=0, plot_simplify=False, save_name=None):
+def masks_to_polygon(img_mask,label=None,simplify_tol=0, plot_simplify=False, save_name=None):
     ''' 
     Find contours with skimage, simplify them (optional), store as geojson:
         
@@ -211,6 +210,7 @@ def masks_to_polygon(img_mask,label=None,features=[],simplify_tol=0, plot_simpli
     '''
     
     # Prepare list to store polygon coordinates and geojson features
+    features=[]
     contours = []
     
     Ncells = img_mask.max()   
@@ -292,8 +292,7 @@ def plot_polygons(poly_shapely,poly_shapely_simple,fig_title='Shapely polygon si
     ax.set_aspect(1)
     ax.set_title('Original mask')
     
-    # *** Simplified polygon
-    
+    # Plot
     ax = fig.add_subplot(122)
     
     # Make the polygon into a patch and add it to the subplot
